@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
 
     for (const key of VALID_KEYS) {
       const value = body[key]
-      if (typeof value !== 'string') continue
+      if (typeof value !== 'string' || value === '') continue
 
       const { error } = await supabase
         .from('settings')

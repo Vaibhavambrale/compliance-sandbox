@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { Check } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -74,16 +75,18 @@ export default function SettingsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
-          <Label htmlFor="gemini-key">Google AI Studio API Key</Label>
-          {maskedKeys.gemini_api_key && (
-            <p className="text-xs text-muted-foreground font-mono">
-              Current: {maskedKeys.gemini_api_key}
-            </p>
-          )}
+          <div className="flex items-center gap-2">
+            <Label htmlFor="gemini-key">Google AI Studio API Key</Label>
+            {maskedKeys.gemini_api_key && (
+              <Badge className="bg-green-100 text-green-700 gap-1" variant="secondary">
+                <Check className="h-3 w-3" /> Saved
+              </Badge>
+            )}
+          </div>
           <Input
             id="gemini-key"
             type="password"
-            placeholder="AIza..."
+            placeholder={maskedKeys.gemini_api_key || 'AIza...'}
             value={geminiKey}
             onChange={(e) => setGeminiKey(e.target.value)}
           />
@@ -101,16 +104,18 @@ export default function SettingsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
-          <Label htmlFor="groq-key">Groq API Key</Label>
-          {maskedKeys.groq_api_key && (
-            <p className="text-xs text-muted-foreground font-mono">
-              Current: {maskedKeys.groq_api_key}
-            </p>
-          )}
+          <div className="flex items-center gap-2">
+            <Label htmlFor="groq-key">Groq API Key</Label>
+            {maskedKeys.groq_api_key && (
+              <Badge className="bg-green-100 text-green-700 gap-1" variant="secondary">
+                <Check className="h-3 w-3" /> Saved
+              </Badge>
+            )}
+          </div>
           <Input
             id="groq-key"
             type="password"
-            placeholder="gsk_..."
+            placeholder={maskedKeys.groq_api_key || 'gsk_...'}
             value={groqKey}
             onChange={(e) => setGroqKey(e.target.value)}
           />
@@ -131,16 +136,18 @@ export default function SettingsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
-          <Label htmlFor="anthropic-key">Anthropic API Key</Label>
-          {maskedKeys.anthropic_api_key && (
-            <p className="text-xs text-muted-foreground font-mono">
-              Current: {maskedKeys.anthropic_api_key}
-            </p>
-          )}
+          <div className="flex items-center gap-2">
+            <Label htmlFor="anthropic-key">Anthropic API Key</Label>
+            {maskedKeys.anthropic_api_key && (
+              <Badge className="bg-green-100 text-green-700 gap-1" variant="secondary">
+                <Check className="h-3 w-3" /> Saved
+              </Badge>
+            )}
+          </div>
           <Input
             id="anthropic-key"
             type="password"
-            placeholder="sk-ant-..."
+            placeholder={maskedKeys.anthropic_api_key || 'sk-ant-...'}
             value={anthropicKey}
             onChange={(e) => setAnthropicKey(e.target.value)}
           />

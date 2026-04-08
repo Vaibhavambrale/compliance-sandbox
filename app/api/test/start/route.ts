@@ -3,6 +3,13 @@ export const runtime = 'edge'
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 
+const MODEL_PROVIDERS: Record<string, string> = {
+  'gemini-1.5-flash': 'Google AI Studio',
+  'gemini-1.5-pro': 'Google AI Studio',
+  'llama-3-groq': 'Groq',
+  'mixtral-groq': 'Groq',
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { use_case, model, frameworks } = await req.json()
@@ -14,6 +21,8 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    const model_provider = MODEL_PROVIDERS[model] ?? 'Unknown'
+
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -24,6 +33,7 @@ export async function POST(req: NextRequest) {
       .insert({
         use_case,
         model_name: model,
+        model_provider,
         frameworks,
         status: 'running',
       })
