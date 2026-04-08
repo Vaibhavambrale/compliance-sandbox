@@ -25,3 +25,8 @@ body {
     text-wrap: balance;
   }
 }
+
+@media print {
+  aside, nav, button, .no-print { display: none !important; }
+  main { padding: 0 !important; }
+}
