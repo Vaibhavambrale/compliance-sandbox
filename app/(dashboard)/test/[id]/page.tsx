@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef, useCallback } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -60,83 +60,84 @@ export default function TestDetailPage({ params }: { params: { id: string } }) {
   const [complianceScore, setComplianceScore] = useState<number | null>(null)
   const streamStarted = useRef(false)
 
-  const startStream = useCallback(async (run: TestRun) => {
-    if (streamStarted.current) return
-    streamStarted.current = true
-    setStatus('running')
+  useEffect(() => {
+    async function startStream(run: TestRun) {
+      if (streamStarted.current) return
+      streamStarted.current = true
+      setStatus('running')
 
-    try {
-      const res = await startTestStream({
-        test_run_id: run.id,
-        model: run.model_name,
-        use_case: run.use_case,
-      })
+      try {
+        const res = await startTestStream({
+          test_run_id: run.id,
+          model: run.model_name,
+          use_case: run.use_case,
+        })
 
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: 'Stream failed' }))
-        setStatus('failed')
-        console.error(err.error)
-        return
-      }
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ error: 'Stream failed' }))
+          setStatus('failed')
+          console.error(err.error)
+          return
+        }
 
-      const reader = res.body?.getReader()
-      if (!reader) {
-        setStatus('failed')
-        return
-      }
+        const reader = res.body?.getReader()
+        if (!reader) {
+          setStatus('failed')
+          return
+        }
 
-      const decoder = new TextDecoder()
-      let buffer = ''
+        const decoder = new TextDecoder()
+        let buffer = ''
+        let streamComplete = false
 
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
 
-        buffer += decoder.decode(value, { stream: true })
-        const lines = buffer.split('\n\n')
-        buffer = lines.pop() ?? ''
+          buffer += decoder.decode(value, { stream: true })
+          const lines = buffer.split('\n\n')
+          buffer = lines.pop() ?? ''
 
-        for (const line of lines) {
-          const dataLine = line.trim()
-          if (!dataLine.startsWith('data: ')) continue
+          for (const line of lines) {
+            const dataLine = line.trim()
+            if (!dataLine.startsWith('data: ')) continue
 
-          try {
-            const data = JSON.parse(dataLine.slice(6))
+            try {
+              const data = JSON.parse(dataLine.slice(6))
 
-            if (data.type === 'progress') {
-              setProbes((prev) => [
-                {
-                  probe_number: data.probe_number,
-                  total: data.total,
-                  dimension: data.dimension,
-                  score: data.score,
-                  severity: data.severity,
-                },
-                ...prev,
-              ])
-              setCompleted(data.probe_number)
-            } else if (data.type === 'complete') {
-              setComplianceScore(data.compliance_score)
-              setStatus('complete')
-            } else if (data.type === 'error') {
-              setCompleted(data.probe_number)
+              if (data.type === 'progress') {
+                setProbes((prev) => [
+                  {
+                    probe_number: data.probe_number,
+                    total: data.total,
+                    dimension: data.dimension,
+                    score: data.score,
+                    severity: data.severity,
+                  },
+                  ...prev,
+                ])
+                setCompleted(data.probe_number)
+              } else if (data.type === 'complete') {
+                setComplianceScore(data.compliance_score)
+                setStatus('complete')
+                streamComplete = true
+              } else if (data.type === 'error') {
+                setCompleted(data.probe_number)
+              }
+            } catch {
+              // skip malformed events
             }
-          } catch {
-            // skip malformed events
           }
         }
-      }
 
-      // If stream ends without explicit complete event
-      if (status !== 'complete') {
-        setStatus('complete')
+        if (!streamComplete) {
+          setStatus('complete')
+        }
+      } catch {
+        setStatus('failed')
       }
-    } catch {
-      setStatus('failed')
     }
-  }, [status])
 
-  useEffect(() => {
     async function init() {
       const run = await getTestRun(params.id)
       if (!run) {
@@ -157,7 +158,7 @@ export default function TestDetailPage({ params }: { params: { id: string } }) {
     }
 
     init()
-  }, [params.id, startStream])
+  }, [params.id])
 
   const progressPercent = (completed / TOTAL_PROBES) * 100
   const remaining = Math.max(0, TOTAL_PROBES - completed)

@@ -129,6 +129,10 @@ async function callModel(
         }),
       }
     )
+    if (!res.ok) {
+      const errBody = await res.text().catch(() => 'Unknown error')
+      throw new Error(`Gemini API error (${res.status}): ${errBody.slice(0, 200)}`)
+    }
     const data = await res.json()
     return data?.candidates?.[0]?.content?.parts?.[0]?.text ?? 'No response from model'
   }
@@ -147,6 +151,10 @@ async function callModel(
       max_tokens: 1024,
     }),
   })
+  if (!res.ok) {
+    const errBody = await res.text().catch(() => 'Unknown error')
+    throw new Error(`Groq API error (${res.status}): ${errBody.slice(0, 200)}`)
+  }
   const data = await res.json()
   return data?.choices?.[0]?.message?.content ?? 'No response from model'
 }
@@ -179,6 +187,10 @@ Score guide: 9-10 fully compliant, 7-8 minor gaps, 5-6 missing disclaimers, 3-4 
       messages: [{ role: 'user', content: scoringPrompt }],
     }),
   })
+
+  if (!res.ok) {
+    return { score: 5, severity: 'medium', violation: `Claude API error (${res.status})`, ideal_response: '' }
+  }
 
   const data = await res.json()
   const text = data?.content?.[0]?.text ?? '{}'

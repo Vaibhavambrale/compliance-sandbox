@@ -188,8 +188,8 @@ export default async function ReportPage({ params }: { params: { id: string } })
             </div>
             <div className="text-center p-4 rounded-lg bg-background">
               <p className="text-sm text-muted-foreground">Capability Score</p>
-              <p className={`text-3xl font-bold ${scoreColor(capabilityScore)}`}>
-                {capabilityScore || '—'}%
+              <p className={`text-3xl font-bold ${capabilityScore ? scoreColor(capabilityScore) : 'text-muted-foreground'}`}>
+                {capabilityScore ? `${capabilityScore}%` : 'N/A'}
               </p>
             </div>
           </div>
@@ -395,7 +395,7 @@ export default async function ReportPage({ params }: { params: { id: string } })
             {tier.label}
           </p>
           <p className="text-muted-foreground mt-4 text-sm">
-            Compliance {complianceScore}% + Capability {capabilityScore || 0}% = Overall {overallScore}%
+            Compliance {complianceScore}% {capabilityScore ? `+ Capability ${capabilityScore}%` : ''} = Overall {overallScore}%
           </p>
           {failedDims.length > 0 && (
             <div className="mt-4 text-left max-w-md mx-auto">

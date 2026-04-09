@@ -18,7 +18,7 @@ export async function saveSettings(settings: ApiKeySettings): Promise<void> {
 }
 
 export async function getSettings(): Promise<ApiKeySettings> {
-  const res = await fetch('/api/settings/save', {
+  const res = await fetch('/api/settings/get', {
     method: 'GET',
   })
 

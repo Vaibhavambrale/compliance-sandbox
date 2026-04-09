@@ -33,6 +33,9 @@ async function callClaude(apiKey: string, prompt: string): Promise<string> {
       messages: [{ role: 'user', content: prompt }],
     }),
   })
+  if (!res.ok) {
+    return '{}'
+  }
   const data = await res.json()
   return data?.content?.[0]?.text ?? '{}'
 }

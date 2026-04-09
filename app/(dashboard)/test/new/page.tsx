@@ -94,7 +94,7 @@ const STEPS = ['Select Use Case', 'Select Model', 'Configure Test']
 
 export default function NewTestPage() {
   return (
-    <Suspense>
+    <Suspense fallback={<div className="space-y-4"><div className="h-8 w-48 bg-muted animate-pulse rounded" /><div className="h-4 w-full bg-muted animate-pulse rounded" /></div>}>
       <NewTestPageInner />
     </Suspense>
   )
