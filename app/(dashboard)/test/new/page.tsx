@@ -324,7 +324,7 @@ function NewTestPageInner() {
                 <div>
                   <p className="text-sm font-medium">Probe Count</p>
                   <p className="text-muted-foreground text-sm mt-1">
-                    40 probes across 8 dimensions (~3 minutes)
+                    43 probes across 8 dimensions (~3 minutes)
                   </p>
                 </div>
                 <Badge variant="secondary" className="text-sm">

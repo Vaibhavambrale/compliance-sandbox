@@ -26,7 +26,7 @@ interface LiveProbe {
   response?: string
 }
 
-const TOTAL_PROBES = 40
+const TOTAL_PROBES = 43
 const SECONDS_PER_PROBE = 6 // ~4s delay + API calls
 
 function scoreColor(score: number) {

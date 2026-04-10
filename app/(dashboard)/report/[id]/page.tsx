@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { headers } from 'next/headers'
 import { getReport, type ComplianceCheckItem } from '@/lib/api/reports'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -56,7 +57,7 @@ function scoreColor(score: number) {
 }
 
 export default async function ReportPage({ params }: { params: { id: string } }) {
-  const report = await getReport(params.id)
+  let report = await getReport(params.id)
 
   if (!report) {
     return (
@@ -68,6 +69,26 @@ export default async function ReportPage({ params }: { params: { id: string } })
         </Link>
       </div>
     )
+  }
+
+  // If the test is complete but remediation has not been generated yet,
+  // call the report generator once and refetch.
+  if (report.testRun.status === 'complete' && report.remediations.length === 0) {
+    try {
+      const headersList = headers()
+      const host = headersList.get('host')
+      const protocol = host?.startsWith('localhost') ? 'http' : 'https'
+      await fetch(`${protocol}://${host}/api/report/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ test_run_id: params.id }),
+        cache: 'no-store',
+      })
+      const refreshed = await getReport(params.id)
+      if (refreshed) report = refreshed
+    } catch (err) {
+      console.error('Report generation failed:', err)
+    }
   }
 
   const { testRun, probes, benchmarks, remediations } = report
