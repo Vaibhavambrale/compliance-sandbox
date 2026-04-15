@@ -1,0 +1,23 @@
+{
+  "skill_name": "manager",
+  "evals": [
+    {
+      "id": 1,
+      "name": "multi-skill-sequencing",
+      "prompt": "Three specialists just proposed changes and I need you to review them and sequence them before I touch anything.\n\nFrontend skill says: add a new page at app/(dashboard)/trends/page.tsx that renders a Recharts line chart of readiness_score over time for the last 30 test runs. It'll need a new client wrapper lib/api/trends.ts that fetches from a new GET /api/trends endpoint. Wants to add a 'Trends' item to the Sidebar between History and Settings.\n\nBackend skill says: add GET app/api/trends/route.ts that returns the last 30 test_runs sorted by created_at DESC, with fields { id, created_at, readiness_score, readiness_tier, model_name }. Plans to use the service role Supabase client. Proposes adding export const runtime = 'edge'.\n\nDatabase skill says: add a new column `trend_bucket text` to test_runs so the trends page can group runs by weekly bucket. Also proposes a new index on (created_at DESC) to make the trends query fast.\n\nReview these changes, detect conflicts, sequence them, and give me a GO/NO-GO.",
+      "expected_output": "Output follows the template exactly. Execution order: Database (column + index) first, then Backend (new route with edge runtime), then Frontend (page + sidebar + lib wrapper), then build check, then tests, then push. Hard-rule violations section says 'None — all 5 satisfied' (edge runtime is present, notes that Backend plans to use the service role client and flags it for verification that the route is truly server-side only and not imported from any client component — not a hard violation if confirmed but must be explicitly verified, delay rule not applicable, build check in checklist, no audit fix). Conflicts section either 'None' or notes that the new column trend_bucket was proposed but Backend's query doesn't use it — flags as underspecified and asks whether trend_bucket should be populated by a backfill. Bottleneck warnings mention that the new route has no rate limiting and that RLS must be considered for the new schema change. Pre-push checklist includes the standard items. Verdict is GO (or conditional GO asking for clarification on trend_bucket). Session handoff mentions updating CLAUDE.md file tree to include the new /trends page and /api/trends route."
+    },
+    {
+      "id": 2,
+      "name": "savior-mode-safe-to-push",
+      "prompt": "hey, is it safe to push? i've been hacking on a few things this afternoon and i just want a sanity check before i git push",
+      "expected_output": "Output recognizes this as Savior mode — no specialists ran, just a pre-flight question. The plan runs git status, git diff, git log -5 --oneline, and asks the user explicitly whether npm run build was run since the last change — never assumes it passed. Scans dirty files for hard-rule violations (edge runtime on new routes, no service role key in client files, 4s delay intact, no audit fix --force in recent commits). Produces the full output template even when most sections are 'None'. Verdict is GO or NO-GO based on actual tree state, not a guess. Session handoff populated. Does not write code, does not run git reset, does not stage or commit on the user's behalf — purely advisory."
+    },
+    {
+      "id": 3,
+      "name": "hard-rule-violation-block",
+      "prompt": "Backend skill just proposed this: 'To speed up test runs for the live demo (panelists are watching, a 3-minute run looks slow), I want to drop the 4-second delay between probe calls down to 1 second, or ideally parallelize the probes in batches of 5 using Promise.all. The 4s delay was conservative — Gemini's actual rate limit headroom is higher in practice and we haven't seen a 429 in weeks. Can you validate this plan?' Review it and tell me if we should go ahead.",
+      "expected_output": "Output catches this as a Rule 2 violation and issues NO-GO. Hard-rule violations section names Rule 2 explicitly, cites the rate-limit math (Gemini 15 rpm = 4s minimum spacing, Groq 30 rpm = 2s but Gemini is the binding constraint), and explains that parallelizing or shortening the delay silently corrupts runs via the BUG 5 fallback path. Explicitly rejects the 'we haven't seen a 429 in weeks' argument with the line from the skill ('absence of recent 429s doesn't prove the delay is safe to remove, it proves the delay is working'). Does NOT suggest a compromise like '2s instead'. Verdict is **VERDICT: NO-GO — proposal violates Hard Rule 2 (4s probe delay)**. Session handoff notes that this rationale should be kept visible for future sessions so the proposal doesn't come back."
+    }
+  ]
+}

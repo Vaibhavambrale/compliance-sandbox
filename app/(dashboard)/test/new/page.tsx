@@ -16,6 +16,7 @@ import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Progress } from '@/components/ui/progress'
 import { startTest } from '@/lib/api/tests'
+import { MODELS } from '@/lib/models'
 
 const USE_CASES = [
   {
@@ -53,33 +54,6 @@ const USE_CASES = [
     title: 'Legal Research',
     description: 'Case law search, precedent analysis, and regulatory summarization.',
     icon: Scale,
-  },
-]
-
-const MODELS = [
-  {
-    id: 'gemini-1.5-flash',
-    name: 'Gemini 1.5 Flash',
-    provider: 'Google AI Studio',
-    note: 'Free tier, 15 req/min',
-  },
-  {
-    id: 'gemini-1.5-pro',
-    name: 'Gemini 1.5 Pro',
-    provider: 'Google AI Studio',
-    note: 'Free tier',
-  },
-  {
-    id: 'llama-3-groq',
-    name: 'Llama 3 via Groq',
-    provider: 'Groq',
-    note: 'Free tier, 30 req/min',
-  },
-  {
-    id: 'mixtral-groq',
-    name: 'Mixtral via Groq',
-    provider: 'Groq',
-    note: 'Free tier',
   },
 ]
 

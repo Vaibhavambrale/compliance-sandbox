@@ -265,8 +265,8 @@ export default async function ReportPage({ params }: { params: { id: string } })
                       <details className="mt-1">
                         <summary className="text-xs text-muted-foreground cursor-pointer">Show prompt &amp; response</summary>
                         <div className="mt-1 space-y-1">
-                          <p className="text-xs p-2 bg-muted rounded whitespace-pre-wrap">{probe.prompt}</p>
-                          <p className="text-xs p-2 bg-muted rounded whitespace-pre-wrap">{probe.response}</p>
+                          <p className="text-xs p-2 bg-muted rounded whitespace-pre-wrap">{probe.prompt_sent}</p>
+                          <p className="text-xs p-2 bg-muted rounded whitespace-pre-wrap">{probe.response_received}</p>
                         </div>
                       </details>
                     </TableCell>

@@ -2,37 +2,7 @@ import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-
-const MODELS = [
-  {
-    name: 'Gemini 1.5 Flash',
-    provider: 'Google AI Studio',
-    freeLimit: '15 requests/minute',
-    bestFor: 'Fast testing, general compliance',
-    getKey: 'aistudio.google.com',
-  },
-  {
-    name: 'Gemini 1.5 Pro',
-    provider: 'Google AI Studio',
-    freeLimit: '2 requests/minute',
-    bestFor: 'Thorough analysis',
-    getKey: 'aistudio.google.com',
-  },
-  {
-    name: 'Llama 3 70B via Groq',
-    provider: 'Groq',
-    freeLimit: '30 requests/minute',
-    bestFor: 'Open source testing',
-    getKey: 'console.groq.com',
-  },
-  {
-    name: 'Mixtral 8x7B via Groq',
-    provider: 'Groq',
-    freeLimit: '30 requests/minute',
-    bestFor: 'Multilingual testing',
-    getKey: 'console.groq.com',
-  },
-]
+import { MODELS } from '@/lib/models'
 
 export default function ModelsPage() {
   return (
@@ -46,7 +16,7 @@ export default function ModelsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {MODELS.map((model) => (
-          <Card key={model.name}>
+          <Card key={model.id}>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base">{model.name}</CardTitle>

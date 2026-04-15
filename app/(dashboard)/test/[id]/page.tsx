@@ -347,7 +347,7 @@ export default function TestDetailPage({ params }: { params: { id: string } }) {
                     Show prompt
                   </summary>
                   <p className="mt-1 p-2 rounded bg-muted text-xs whitespace-pre-wrap">
-                    {probe.prompt}
+                    {probe.prompt_sent}
                   </p>
                 </details>
                 <details className="text-sm">
@@ -355,7 +355,7 @@ export default function TestDetailPage({ params }: { params: { id: string } }) {
                     Show model response
                   </summary>
                   <p className="mt-1 p-2 rounded bg-muted text-xs whitespace-pre-wrap">
-                    {probe.response}
+                    {probe.response_received}
                   </p>
                 </details>
                 {probe.violation && (

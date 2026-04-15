@@ -441,8 +441,20 @@ Planner → Tester → [Frontend/Backend/Database] → Manager → [User approve
 - `editor/` — COMPLETE ✓ 3/3 tests passed. Refuses without GO, stops on failure.
 - `tester/` — COMPLETE ✓ 3/3 tests passed. Audit + Risk modes. Found BUG 9.
 - `planner/` — COMPLETE ✓ 3/3 tests passed. Feature Planning + Prioritization modes.
-- `backend/` — NOT STARTED.
-- `database/` — NOT STARTED.
+- `backend/` — COMPLETE ✓ Owns app/api/ and lib/api/. 7 hard rules. 3 fragile route warnings.
+- `database/` — COMPLETE ✓ Owns schema, migrations, RLS, drift audits. 4 known issues tracked.
+
+## SKILL ROUTING — AUTO-APPLY
+
+When receiving a task, match it to a skill BEFORE writing any code:
+
+- Files in `app/api/` or `lib/api/` → read `.claude/skills/backend/SKILL.md`, follow its rules and output format
+- Schema changes, migrations, RLS, column mismatches → read `.claude/skills/database/SKILL.md`, follow its rules and output format
+- Files in `app/(dashboard)/`, `components/`, UI work → read `.claude/skills/frontend/SKILL.md`
+- Bug fix or feature with multiple files → read `.claude/skills/manager/SKILL.md` first for GO/NO-GO
+- Before any git commit → read `.claude/skills/editor/SKILL.md` for pre-commit checks
+
+Always read the relevant SKILL.md before starting work. Multiple skills may apply to one task.
 
 ### Fixed bugs (this session):
 - BUG 8 (not-found.tsx) — FIXED ✓ commit 72d1cc4

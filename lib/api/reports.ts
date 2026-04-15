@@ -4,8 +4,8 @@ export interface ReportProbe {
   id: string
   test_run_id: string
   dimension: string
-  prompt: string
-  response: string
+  prompt_sent: string
+  response_received: string
   score: number
   severity: string
   violation: string

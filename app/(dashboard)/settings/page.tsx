@@ -8,7 +8,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { saveSettings } from '@/lib/api/settings'
+import { getSettings, saveSettings, type ApiKeySettings } from '@/lib/api/settings'
+
+type KeyField = 'gemini' | 'groq' | 'anthropic'
 
 export default function SettingsPage() {
   const [geminiKey, setGeminiKey] = useState('')
@@ -16,18 +18,30 @@ export default function SettingsPage() {
   const [anthropicKey, setAnthropicKey] = useState('')
   const [probeCount, setProbeCount] = useState(40)
   const [probeDelay, setProbeDelay] = useState(4)
-  const [maskedKeys, setMaskedKeys] = useState<Record<string, string>>({})
+  const [maskedKeys, setMaskedKeys] = useState<ApiKeySettings>({
+    gemini_api_key: '',
+    groq_api_key: '',
+    anthropic_api_key: '',
+  })
+  const [editing, setEditing] = useState<Record<KeyField, boolean>>({
+    gemini: false,
+    groq: false,
+    anthropic: false,
+  })
   const [saving, setSaving] = useState(false)
   const [status, setStatus] = useState<'idle' | 'saved' | 'error'>('idle')
 
   useEffect(() => {
-    fetch('/api/settings/get')
-      .then((res) => res.json())
+    getSettings()
       .then((data) => {
         setMaskedKeys(data)
       })
       .catch(() => {})
   }, [])
+
+  function startEdit(field: KeyField) {
+    setEditing((prev) => ({ ...prev, [field]: true }))
+  }
 
   async function handleSave() {
     setSaving(true)
@@ -39,14 +53,14 @@ export default function SettingsPage() {
         anthropic_api_key: anthropicKey,
       })
       setStatus('saved')
-      // Refresh masked keys
-      const res = await fetch('/api/settings/get')
-      const data = await res.json()
+      // Refresh masked keys from server so UI reflects persisted state
+      const data = await getSettings()
       setMaskedKeys(data)
-      // Clear raw inputs after save
+      // Clear raw inputs and return all fields to their saved-display state
       setGeminiKey('')
       setGroqKey('')
       setAnthropicKey('')
+      setEditing({ gemini: false, groq: false, anthropic: false })
     } catch {
       setStatus('error')
     } finally {
@@ -83,13 +97,28 @@ export default function SettingsPage() {
               </Badge>
             )}
           </div>
-          <Input
-            id="gemini-key"
-            type="password"
-            placeholder={maskedKeys.gemini_api_key || 'AIza...'}
-            value={geminiKey}
-            onChange={(e) => setGeminiKey(e.target.value)}
-          />
+          {maskedKeys.gemini_api_key && !editing.gemini ? (
+            <div className="flex items-center gap-2">
+              <Input
+                id="gemini-key"
+                type="text"
+                value={maskedKeys.gemini_api_key}
+                readOnly
+                className="font-mono"
+              />
+              <Button type="button" variant="outline" onClick={() => startEdit('gemini')}>
+                Change
+              </Button>
+            </div>
+          ) : (
+            <Input
+              id="gemini-key"
+              type="password"
+              placeholder="AIza..."
+              value={geminiKey}
+              onChange={(e) => setGeminiKey(e.target.value)}
+            />
+          )}
         </CardContent>
       </Card>
 
@@ -112,13 +141,28 @@ export default function SettingsPage() {
               </Badge>
             )}
           </div>
-          <Input
-            id="groq-key"
-            type="password"
-            placeholder={maskedKeys.groq_api_key || 'gsk_...'}
-            value={groqKey}
-            onChange={(e) => setGroqKey(e.target.value)}
-          />
+          {maskedKeys.groq_api_key && !editing.groq ? (
+            <div className="flex items-center gap-2">
+              <Input
+                id="groq-key"
+                type="text"
+                value={maskedKeys.groq_api_key}
+                readOnly
+                className="font-mono"
+              />
+              <Button type="button" variant="outline" onClick={() => startEdit('groq')}>
+                Change
+              </Button>
+            </div>
+          ) : (
+            <Input
+              id="groq-key"
+              type="password"
+              placeholder="gsk_..."
+              value={groqKey}
+              onChange={(e) => setGroqKey(e.target.value)}
+            />
+          )}
         </CardContent>
       </Card>
 
@@ -144,13 +188,28 @@ export default function SettingsPage() {
               </Badge>
             )}
           </div>
-          <Input
-            id="anthropic-key"
-            type="password"
-            placeholder={maskedKeys.anthropic_api_key || 'sk-ant-...'}
-            value={anthropicKey}
-            onChange={(e) => setAnthropicKey(e.target.value)}
-          />
+          {maskedKeys.anthropic_api_key && !editing.anthropic ? (
+            <div className="flex items-center gap-2">
+              <Input
+                id="anthropic-key"
+                type="text"
+                value={maskedKeys.anthropic_api_key}
+                readOnly
+                className="font-mono"
+              />
+              <Button type="button" variant="outline" onClick={() => startEdit('anthropic')}>
+                Change
+              </Button>
+            </div>
+          ) : (
+            <Input
+              id="anthropic-key"
+              type="password"
+              placeholder="sk-ant-..."
+              value={anthropicKey}
+              onChange={(e) => setAnthropicKey(e.target.value)}
+            />
+          )}
         </CardContent>
       </Card>
 

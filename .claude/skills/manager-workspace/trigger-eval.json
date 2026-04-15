@@ -1,0 +1,22 @@
+[
+  {"query": "ok so frontend just said add a chart to the dashboard, backend says new route at app/api/stats, database says new column — can you sequence this before i push? last time i did it in wrong order and broke the build", "should_trigger": true},
+  {"query": "manager, tell me the right order to do these three changes", "should_trigger": true},
+  {"query": "before i git push this stuff i've been working on all afternoon can you give me a sanity check. i don't want to break vercel again", "should_trigger": true},
+  {"query": "planner wants to add a new use case for supply chain, tester says we need to add a multilingual probe for tamil first, im lost on what to do first. help me figure out the sequence", "should_trigger": true},
+  {"query": "will this break anything? i just changed app/api/test/run/route.ts to use a different claude model id, feels scary", "should_trigger": true},
+  {"query": "savior skill please — i'm one commit away from the IEEE demo and backend just proposed something i dont understand", "should_trigger": true},
+  {"query": "i need a pre-flight check on the last 3 files i touched, settings page, the start route, and the report gen route", "should_trigger": true},
+  {"query": "can you validate the plan where frontend wants to add top-level /analytics and backend says we need a new SSE endpoint? sitting in front of two different proposal dumps", "should_trigger": true},
+  {"query": "what could go wrong if i merge all three of the changes frontend/backend/database just gave me", "should_trigger": true},
+  {"query": "i'm about to start phase 11 where we implement layer 2 benchmarking — need you to check for conflicts with the existing probe engine first", "should_trigger": true},
+  {"query": "fix BUG 5 in app/api/test/run/route.ts — when claude scoring fails the probe silently defaults to score 5. change it to exclude from the average", "should_trigger": false},
+  {"query": "write me a new recharts line chart component for the trends page. here's the mock in figma: [link]", "should_trigger": false},
+  {"query": "explain how the SSE streaming works in the test run route. i just want to understand the flow", "should_trigger": false},
+  {"query": "why is npm run build failing after my last commit? here's the error: Type 'string' is not assignable to type '42'", "should_trigger": false},
+  {"query": "what's the supabase project url again, i need it for a script", "should_trigger": false},
+  {"query": "give me a bulleted list of all 6 use cases in this project with their sector benchmarks", "should_trigger": false},
+  {"query": "backend and frontend both look good to me, just go ahead and implement everything they proposed", "should_trigger": false},
+  {"query": "rename the variable `probeCount` to `numProbes` in app/(dashboard)/settings/page.tsx", "should_trigger": false},
+  {"query": "generate 5 new bias probes for the loan underwriting use case focused on region", "should_trigger": false},
+  {"query": "how much does this burn in claude credits per run, rough math please", "should_trigger": false}
+]

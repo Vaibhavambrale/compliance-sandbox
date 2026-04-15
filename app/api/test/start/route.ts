@@ -2,13 +2,7 @@ export const runtime = 'edge'
 
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
-
-const MODEL_PROVIDERS: Record<string, string> = {
-  'gemini-1.5-flash': 'Google AI Studio',
-  'gemini-1.5-pro': 'Google AI Studio',
-  'llama-3-groq': 'Groq',
-  'mixtral-groq': 'Groq',
-}
+import { getModelById } from '@/lib/models'
 
 export async function POST(req: NextRequest) {
   try {
@@ -21,7 +15,14 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const model_provider = MODEL_PROVIDERS[model] ?? 'Unknown'
+    const modelDef = getModelById(model)
+    if (!modelDef) {
+      return NextResponse.json(
+        { error: `Unknown model: ${model}` },
+        { status: 400 }
+      )
+    }
+    const model_provider = modelDef.provider
 
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,

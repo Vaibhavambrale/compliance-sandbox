@@ -1,0 +1,1390 @@
+{
+  "exit_reason": "max_iterations (5)",
+  "original_description": "Senior engineering lead for the AI Compliance Testing Sandbox. Reads proposed changes from specialist skills (Frontend, Backend, Database, Tester, Planner), detects conflicts, sequences changes safely for Next.js 14 / Supabase / Vercel, enforces 5 hard rules, and issues a GO/NO-GO verdict. Trigger when user says \"review these changes\", \"check for conflicts\", \"sequence these\", \"validate the plan\", \"will this break anything\", \"is it safe to push\", \"what could go wrong\", \"pre-flight check\", \"Manager skill\", or \"Savior skill\" \u2014 or whenever multiple specialist skills have proposed changes in the same session.",
+  "best_description": "Senior engineering lead for the AI Compliance Testing Sandbox. Reads proposed changes from specialist skills (Frontend, Backend, Database, Tester, Planner), detects conflicts, sequences changes safely for Next.js 14 / Supabase / Vercel, enforces 5 hard rules, and issues a GO/NO-GO verdict. Trigger when user says \"review these changes\", \"check for conflicts\", \"sequence these\", \"validate the plan\", \"will this break anything\", \"is it safe to push\", \"what could go wrong\", \"pre-flight check\", \"Manager skill\", or \"Savior skill\" \u2014 or whenever multiple specialist skills have proposed changes in the same session.",
+  "best_score": "4/8",
+  "best_train_score": "6/12",
+  "best_test_score": "4/8",
+  "final_description": "Use this skill before risky or multi-part changes to the AI Compliance Testing Sandbox (Next.js 14 / Supabase / Vercel). Invoke it when the user is about to push, commit, or start a new phase and wants a pre-flight check, conflict scan, sequencing plan, or GO/NO-GO verdict. Typical triggers: \"will this break\", \"is it safe\", \"what could go wrong\", \"what order should I do these in\", \"pre-flight check\", \"audit what I just changed\", nervousness before the IEEE demo, edits to API routes or schema, or any moment where frontend + backend + database changes need reconciling. Also invoke when the user addresses \"manager\" or \"savior\", pastes multiple specialist proposals, or asks to sequence/validate work from Frontend, Backend, Database, Tester, or Planner skills. Do NOT invoke for single-file edits, straightforward coding, content generation, cost estimates, or when the user has already decided and just wants implementation.",
+  "iterations_run": 5,
+  "holdout": 0.4,
+  "train_size": 12,
+  "test_size": 8,
+  "history": [
+    {
+      "iteration": 1,
+      "description": "Senior engineering lead for the AI Compliance Testing Sandbox. Reads proposed changes from specialist skills (Frontend, Backend, Database, Tester, Planner), detects conflicts, sequences changes safely for Next.js 14 / Supabase / Vercel, enforces 5 hard rules, and issues a GO/NO-GO verdict. Trigger when user says \"review these changes\", \"check for conflicts\", \"sequence these\", \"validate the plan\", \"will this break anything\", \"is it safe to push\", \"what could go wrong\", \"pre-flight check\", \"Manager skill\", or \"Savior skill\" \u2014 or whenever multiple specialist skills have proposed changes in the same session.",
+      "train_passed": 6,
+      "train_failed": 6,
+      "train_total": 12,
+      "train_results": [
+        {
+          "query": "savior skill please \u2014 i'm one commit away from the IEEE demo and backend just proposed something i dont understand",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "i need a pre-flight check on the last 3 files i touched, settings page, the start route, and the report gen route",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "will this break anything? i just changed app/api/test/run/route.ts to use a different claude model id, feels scary",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "i'm about to start phase 11 where we implement layer 2 benchmarking \u2014 need you to check for conflicts with the existing probe engine first",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "write me a new recharts line chart component for the trends page. here's the mock in figma: [link]",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "ok so frontend just said add a chart to the dashboard, backend says new route at app/api/stats, database says new column \u2014 can you sequence this before i push? last time i did it in wrong order and broke the build",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "manager, tell me the right order to do these three changes",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "rename the variable `probeCount` to `numProbes` in app/(dashboard)/settings/page.tsx",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "generate 5 new bias probes for the loan underwriting use case focused on region",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "fix BUG 5 in app/api/test/run/route.ts \u2014 when claude scoring fails the probe silently defaults to score 5. change it to exclude from the average",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "how much does this burn in claude credits per run, rough math please",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "backend and frontend both look good to me, just go ahead and implement everything they proposed",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ],
+      "test_passed": 4,
+      "test_failed": 4,
+      "test_total": 8,
+      "test_results": [
+        {
+          "query": "can you validate the plan where frontend wants to add top-level /analytics and backend says we need a new SSE endpoint? sitting in front of two different proposal dumps",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "planner wants to add a new use case for supply chain, tester says we need to add a multilingual probe for tamil first, im lost on what to do first. help me figure out the sequence",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "before i git push this stuff i've been working on all afternoon can you give me a sanity check. i don't want to break vercel again",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "why is npm run build failing after my last commit? here's the error: Type 'string' is not assignable to type '42'",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "what could go wrong if i merge all three of the changes frontend/backend/database just gave me",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "explain how the SSE streaming works in the test run route. i just want to understand the flow",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "give me a bulleted list of all 6 use cases in this project with their sector benchmarks",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "what's the supabase project url again, i need it for a script",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ],
+      "passed": 6,
+      "failed": 6,
+      "total": 12,
+      "results": [
+        {
+          "query": "savior skill please \u2014 i'm one commit away from the IEEE demo and backend just proposed something i dont understand",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "i need a pre-flight check on the last 3 files i touched, settings page, the start route, and the report gen route",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "will this break anything? i just changed app/api/test/run/route.ts to use a different claude model id, feels scary",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "i'm about to start phase 11 where we implement layer 2 benchmarking \u2014 need you to check for conflicts with the existing probe engine first",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "write me a new recharts line chart component for the trends page. here's the mock in figma: [link]",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "ok so frontend just said add a chart to the dashboard, backend says new route at app/api/stats, database says new column \u2014 can you sequence this before i push? last time i did it in wrong order and broke the build",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "manager, tell me the right order to do these three changes",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "rename the variable `probeCount` to `numProbes` in app/(dashboard)/settings/page.tsx",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "generate 5 new bias probes for the loan underwriting use case focused on region",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "fix BUG 5 in app/api/test/run/route.ts \u2014 when claude scoring fails the probe silently defaults to score 5. change it to exclude from the average",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "how much does this burn in claude credits per run, rough math please",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "backend and frontend both look good to me, just go ahead and implement everything they proposed",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "iteration": 2,
+      "description": "Use this skill whenever the user needs a safety check, sequencing, or second opinion before making risky changes to the AI Compliance Testing Sandbox (Next.js 14 / Supabase / Vercel). Trigger it when the user is nervous about pushing, asks if something will break, wants a pre-flight or sanity check, needs the right order for multiple changes across frontend/backend/database, is approaching a demo or deadline, is about to start a new phase, asks for conflict detection between proposals, or uses words like \"manager\", \"savior\", \"is it safe\", \"will this break\", \"what could go wrong\", \"sequence these\", or \"check before I push\". Also trigger when multiple specialist skills (Frontend, Backend, Database, Tester, Planner) have proposed changes in the same session and need reconciling. Do NOT trigger for straightforward coding tasks, single-file edits, content generation, or cost estimates \u2014 only when the user wants judgment, sequencing, or a GO/NO-GO verdict rather than execution.",
+      "train_passed": 6,
+      "train_failed": 6,
+      "train_total": 12,
+      "train_results": [
+        {
+          "query": "i need a pre-flight check on the last 3 files i touched, settings page, the start route, and the report gen route",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "savior skill please \u2014 i'm one commit away from the IEEE demo and backend just proposed something i dont understand",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "i'm about to start phase 11 where we implement layer 2 benchmarking \u2014 need you to check for conflicts with the existing probe engine first",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "will this break anything? i just changed app/api/test/run/route.ts to use a different claude model id, feels scary",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "ok so frontend just said add a chart to the dashboard, backend says new route at app/api/stats, database says new column \u2014 can you sequence this before i push? last time i did it in wrong order and broke the build",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "manager, tell me the right order to do these three changes",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "write me a new recharts line chart component for the trends page. here's the mock in figma: [link]",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "generate 5 new bias probes for the loan underwriting use case focused on region",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "rename the variable `probeCount` to `numProbes` in app/(dashboard)/settings/page.tsx",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "fix BUG 5 in app/api/test/run/route.ts \u2014 when claude scoring fails the probe silently defaults to score 5. change it to exclude from the average",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "backend and frontend both look good to me, just go ahead and implement everything they proposed",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "how much does this burn in claude credits per run, rough math please",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ],
+      "test_passed": 4,
+      "test_failed": 4,
+      "test_total": 8,
+      "test_results": [
+        {
+          "query": "can you validate the plan where frontend wants to add top-level /analytics and backend says we need a new SSE endpoint? sitting in front of two different proposal dumps",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "planner wants to add a new use case for supply chain, tester says we need to add a multilingual probe for tamil first, im lost on what to do first. help me figure out the sequence",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "before i git push this stuff i've been working on all afternoon can you give me a sanity check. i don't want to break vercel again",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "what could go wrong if i merge all three of the changes frontend/backend/database just gave me",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "why is npm run build failing after my last commit? here's the error: Type 'string' is not assignable to type '42'",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "give me a bulleted list of all 6 use cases in this project with their sector benchmarks",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "explain how the SSE streaming works in the test run route. i just want to understand the flow",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "what's the supabase project url again, i need it for a script",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ],
+      "passed": 6,
+      "failed": 6,
+      "total": 12,
+      "results": [
+        {
+          "query": "i need a pre-flight check on the last 3 files i touched, settings page, the start route, and the report gen route",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "savior skill please \u2014 i'm one commit away from the IEEE demo and backend just proposed something i dont understand",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "i'm about to start phase 11 where we implement layer 2 benchmarking \u2014 need you to check for conflicts with the existing probe engine first",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "will this break anything? i just changed app/api/test/run/route.ts to use a different claude model id, feels scary",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "ok so frontend just said add a chart to the dashboard, backend says new route at app/api/stats, database says new column \u2014 can you sequence this before i push? last time i did it in wrong order and broke the build",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "manager, tell me the right order to do these three changes",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "write me a new recharts line chart component for the trends page. here's the mock in figma: [link]",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "generate 5 new bias probes for the loan underwriting use case focused on region",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "rename the variable `probeCount` to `numProbes` in app/(dashboard)/settings/page.tsx",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "fix BUG 5 in app/api/test/run/route.ts \u2014 when claude scoring fails the probe silently defaults to score 5. change it to exclude from the average",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "backend and frontend both look good to me, just go ahead and implement everything they proposed",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "how much does this burn in claude credits per run, rough math please",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "iteration": 3,
+      "description": "Use this skill when the user wants a pre-flight check, sanity review, sequencing plan, or GO/NO-GO verdict before touching the AI Compliance Testing Sandbox (Next.js 14 / Supabase / Vercel). Trigger whenever the user is anxious about pushing, asks \"will this break\", \"is it safe\", \"what could go wrong\", wants the right order for changes spanning frontend + backend + database, is starting a new phase, is approaching the IEEE demo, mentions \"manager\" or \"savior\", asks to reconcile proposals from Frontend/Backend/Database/Tester/Planner, or wants conflict detection between multiple pending changes. Also trigger for audits of recently edited files, rule/bottleneck checks, or when the user pastes specialist proposals and wants them sequenced. Do NOT trigger for single-file edits, straightforward coding, content generation (probes, components, copy), cost estimates, or when the user has already decided and just wants execution.",
+      "train_passed": 6,
+      "train_failed": 6,
+      "train_total": 12,
+      "train_results": [
+        {
+          "query": "savior skill please \u2014 i'm one commit away from the IEEE demo and backend just proposed something i dont understand",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "i'm about to start phase 11 where we implement layer 2 benchmarking \u2014 need you to check for conflicts with the existing probe engine first",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "i need a pre-flight check on the last 3 files i touched, settings page, the start route, and the report gen route",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "will this break anything? i just changed app/api/test/run/route.ts to use a different claude model id, feels scary",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "ok so frontend just said add a chart to the dashboard, backend says new route at app/api/stats, database says new column \u2014 can you sequence this before i push? last time i did it in wrong order and broke the build",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "manager, tell me the right order to do these three changes",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "write me a new recharts line chart component for the trends page. here's the mock in figma: [link]",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "generate 5 new bias probes for the loan underwriting use case focused on region",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "rename the variable `probeCount` to `numProbes` in app/(dashboard)/settings/page.tsx",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "fix BUG 5 in app/api/test/run/route.ts \u2014 when claude scoring fails the probe silently defaults to score 5. change it to exclude from the average",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "backend and frontend both look good to me, just go ahead and implement everything they proposed",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "how much does this burn in claude credits per run, rough math please",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ],
+      "test_passed": 4,
+      "test_failed": 4,
+      "test_total": 8,
+      "test_results": [
+        {
+          "query": "can you validate the plan where frontend wants to add top-level /analytics and backend says we need a new SSE endpoint? sitting in front of two different proposal dumps",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "planner wants to add a new use case for supply chain, tester says we need to add a multilingual probe for tamil first, im lost on what to do first. help me figure out the sequence",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "before i git push this stuff i've been working on all afternoon can you give me a sanity check. i don't want to break vercel again",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "what could go wrong if i merge all three of the changes frontend/backend/database just gave me",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "why is npm run build failing after my last commit? here's the error: Type 'string' is not assignable to type '42'",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "give me a bulleted list of all 6 use cases in this project with their sector benchmarks",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "explain how the SSE streaming works in the test run route. i just want to understand the flow",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "what's the supabase project url again, i need it for a script",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ],
+      "passed": 6,
+      "failed": 6,
+      "total": 12,
+      "results": [
+        {
+          "query": "savior skill please \u2014 i'm one commit away from the IEEE demo and backend just proposed something i dont understand",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "i'm about to start phase 11 where we implement layer 2 benchmarking \u2014 need you to check for conflicts with the existing probe engine first",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "i need a pre-flight check on the last 3 files i touched, settings page, the start route, and the report gen route",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "will this break anything? i just changed app/api/test/run/route.ts to use a different claude model id, feels scary",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "ok so frontend just said add a chart to the dashboard, backend says new route at app/api/stats, database says new column \u2014 can you sequence this before i push? last time i did it in wrong order and broke the build",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "manager, tell me the right order to do these three changes",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "write me a new recharts line chart component for the trends page. here's the mock in figma: [link]",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "generate 5 new bias probes for the loan underwriting use case focused on region",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "rename the variable `probeCount` to `numProbes` in app/(dashboard)/settings/page.tsx",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "fix BUG 5 in app/api/test/run/route.ts \u2014 when claude scoring fails the probe silently defaults to score 5. change it to exclude from the average",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "backend and frontend both look good to me, just go ahead and implement everything they proposed",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "how much does this burn in claude credits per run, rough math please",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "iteration": 4,
+      "description": "Use this skill whenever the user wants a review, safety check, or sequencing decision before changing the AI Compliance Testing Sandbox (Next.js 14 / Supabase / Vercel). Trigger on: pre-flight checks, \"will this break\", \"is it safe to push\", \"what could go wrong\", nervousness before a commit or demo, starting a new phase, auditing recently touched files, a risky edit to API routes or schema, or any request for the correct order when a change spans frontend + backend + database. Trigger on the words \"manager\" or \"savior\" addressed to you, and whenever the user has multiple pending proposals (from Frontend/Backend/Database/Tester/Planner or pasted by hand) and wants them reconciled, conflict-checked, or sequenced. Also trigger near the IEEE demo deadline for any non-trivial change. Do NOT trigger for single-file edits, straightforward coding, content generation, cost math, or when the user has already decided and only wants execution.",
+      "train_passed": 6,
+      "train_failed": 6,
+      "train_total": 12,
+      "train_results": [
+        {
+          "query": "savior skill please \u2014 i'm one commit away from the IEEE demo and backend just proposed something i dont understand",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "i need a pre-flight check on the last 3 files i touched, settings page, the start route, and the report gen route",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "i'm about to start phase 11 where we implement layer 2 benchmarking \u2014 need you to check for conflicts with the existing probe engine first",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "will this break anything? i just changed app/api/test/run/route.ts to use a different claude model id, feels scary",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "ok so frontend just said add a chart to the dashboard, backend says new route at app/api/stats, database says new column \u2014 can you sequence this before i push? last time i did it in wrong order and broke the build",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "manager, tell me the right order to do these three changes",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "write me a new recharts line chart component for the trends page. here's the mock in figma: [link]",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "generate 5 new bias probes for the loan underwriting use case focused on region",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "rename the variable `probeCount` to `numProbes` in app/(dashboard)/settings/page.tsx",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "fix BUG 5 in app/api/test/run/route.ts \u2014 when claude scoring fails the probe silently defaults to score 5. change it to exclude from the average",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "backend and frontend both look good to me, just go ahead and implement everything they proposed",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "how much does this burn in claude credits per run, rough math please",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ],
+      "test_passed": 4,
+      "test_failed": 4,
+      "test_total": 8,
+      "test_results": [
+        {
+          "query": "can you validate the plan where frontend wants to add top-level /analytics and backend says we need a new SSE endpoint? sitting in front of two different proposal dumps",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "planner wants to add a new use case for supply chain, tester says we need to add a multilingual probe for tamil first, im lost on what to do first. help me figure out the sequence",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "before i git push this stuff i've been working on all afternoon can you give me a sanity check. i don't want to break vercel again",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "what could go wrong if i merge all three of the changes frontend/backend/database just gave me",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "why is npm run build failing after my last commit? here's the error: Type 'string' is not assignable to type '42'",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "give me a bulleted list of all 6 use cases in this project with their sector benchmarks",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "explain how the SSE streaming works in the test run route. i just want to understand the flow",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "what's the supabase project url again, i need it for a script",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ],
+      "passed": 6,
+      "failed": 6,
+      "total": 12,
+      "results": [
+        {
+          "query": "savior skill please \u2014 i'm one commit away from the IEEE demo and backend just proposed something i dont understand",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "i need a pre-flight check on the last 3 files i touched, settings page, the start route, and the report gen route",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "i'm about to start phase 11 where we implement layer 2 benchmarking \u2014 need you to check for conflicts with the existing probe engine first",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "will this break anything? i just changed app/api/test/run/route.ts to use a different claude model id, feels scary",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "ok so frontend just said add a chart to the dashboard, backend says new route at app/api/stats, database says new column \u2014 can you sequence this before i push? last time i did it in wrong order and broke the build",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "manager, tell me the right order to do these three changes",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "write me a new recharts line chart component for the trends page. here's the mock in figma: [link]",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "generate 5 new bias probes for the loan underwriting use case focused on region",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "rename the variable `probeCount` to `numProbes` in app/(dashboard)/settings/page.tsx",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "fix BUG 5 in app/api/test/run/route.ts \u2014 when claude scoring fails the probe silently defaults to score 5. change it to exclude from the average",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "backend and frontend both look good to me, just go ahead and implement everything they proposed",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "how much does this burn in claude credits per run, rough math please",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "iteration": 5,
+      "description": "Use this skill before risky or multi-part changes to the AI Compliance Testing Sandbox (Next.js 14 / Supabase / Vercel). Invoke it when the user is about to push, commit, or start a new phase and wants a pre-flight check, conflict scan, sequencing plan, or GO/NO-GO verdict. Typical triggers: \"will this break\", \"is it safe\", \"what could go wrong\", \"what order should I do these in\", \"pre-flight check\", \"audit what I just changed\", nervousness before the IEEE demo, edits to API routes or schema, or any moment where frontend + backend + database changes need reconciling. Also invoke when the user addresses \"manager\" or \"savior\", pastes multiple specialist proposals, or asks to sequence/validate work from Frontend, Backend, Database, Tester, or Planner skills. Do NOT invoke for single-file edits, straightforward coding, content generation, cost estimates, or when the user has already decided and just wants implementation.",
+      "train_passed": 6,
+      "train_failed": 6,
+      "train_total": 12,
+      "train_results": [
+        {
+          "query": "i need a pre-flight check on the last 3 files i touched, settings page, the start route, and the report gen route",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "savior skill please \u2014 i'm one commit away from the IEEE demo and backend just proposed something i dont understand",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "will this break anything? i just changed app/api/test/run/route.ts to use a different claude model id, feels scary",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "i'm about to start phase 11 where we implement layer 2 benchmarking \u2014 need you to check for conflicts with the existing probe engine first",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "ok so frontend just said add a chart to the dashboard, backend says new route at app/api/stats, database says new column \u2014 can you sequence this before i push? last time i did it in wrong order and broke the build",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "manager, tell me the right order to do these three changes",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "write me a new recharts line chart component for the trends page. here's the mock in figma: [link]",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "generate 5 new bias probes for the loan underwriting use case focused on region",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "rename the variable `probeCount` to `numProbes` in app/(dashboard)/settings/page.tsx",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "fix BUG 5 in app/api/test/run/route.ts \u2014 when claude scoring fails the probe silently defaults to score 5. change it to exclude from the average",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "backend and frontend both look good to me, just go ahead and implement everything they proposed",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "how much does this burn in claude credits per run, rough math please",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ],
+      "test_passed": 4,
+      "test_failed": 4,
+      "test_total": 8,
+      "test_results": [
+        {
+          "query": "can you validate the plan where frontend wants to add top-level /analytics and backend says we need a new SSE endpoint? sitting in front of two different proposal dumps",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "planner wants to add a new use case for supply chain, tester says we need to add a multilingual probe for tamil first, im lost on what to do first. help me figure out the sequence",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "before i git push this stuff i've been working on all afternoon can you give me a sanity check. i don't want to break vercel again",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "what could go wrong if i merge all three of the changes frontend/backend/database just gave me",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "why is npm run build failing after my last commit? here's the error: Type 'string' is not assignable to type '42'",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "give me a bulleted list of all 6 use cases in this project with their sector benchmarks",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "explain how the SSE streaming works in the test run route. i just want to understand the flow",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "what's the supabase project url again, i need it for a script",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ],
+      "passed": 6,
+      "failed": 6,
+      "total": 12,
+      "results": [
+        {
+          "query": "i need a pre-flight check on the last 3 files i touched, settings page, the start route, and the report gen route",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "savior skill please \u2014 i'm one commit away from the IEEE demo and backend just proposed something i dont understand",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "will this break anything? i just changed app/api/test/run/route.ts to use a different claude model id, feels scary",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "i'm about to start phase 11 where we implement layer 2 benchmarking \u2014 need you to check for conflicts with the existing probe engine first",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "ok so frontend just said add a chart to the dashboard, backend says new route at app/api/stats, database says new column \u2014 can you sequence this before i push? last time i did it in wrong order and broke the build",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "manager, tell me the right order to do these three changes",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "write me a new recharts line chart component for the trends page. here's the mock in figma: [link]",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "generate 5 new bias probes for the loan underwriting use case focused on region",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "rename the variable `probeCount` to `numProbes` in app/(dashboard)/settings/page.tsx",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "fix BUG 5 in app/api/test/run/route.ts \u2014 when claude scoring fails the probe silently defaults to score 5. change it to exclude from the average",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "backend and frontend both look good to me, just go ahead and implement everything they proposed",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "how much does this burn in claude credits per run, rough math please",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ]
+    }
+  ]
+}
