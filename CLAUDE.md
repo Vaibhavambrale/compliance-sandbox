@@ -20,6 +20,13 @@ Both layers combine into a Deployment Readiness Score (0-100) with a verdict: De
 
 > Last synced: **2026-04-14** — derived from a full audit (Opus 4.6, 1M ctx) committed as `project_state.md`. Branch `main` @ `c8648d3`. No code changes since the audit — the items below reflect *read-through-source* reality, not the old phase narrative.
 
+### Snapshot — April 15, 2026 (10 days to IEEE presentation)
+- All 7 skills installed and tested in `.claude/skills/`
+- 4 of 9 known bugs fixed (BUG 1, 2, 8, 9). 5 P1 bugs remain (3, 4, 5, 6, 7).
+- Build green, last commit pushed today with BUG 1/2/9 fixes.
+- `lib/models.ts` added as single source of truth for model registry.
+- Next priority: BUG 3 + BUG 4 together (both in report generation path), then BUG 5, then Layer 2 (BUG 6).
+
 ### What is genuinely complete and working (verified against source):
 - Phase 1–10 scaffolding complete: Next.js 14 app, Supabase connected, Vercel auto-deploy, all 10 page routes, sidebar layout, error boundary.
 - Dashboard (Server Component) with 6 real widgets fetching from Supabase via `lib/api/dashboard.ts`.
@@ -34,15 +41,15 @@ Both layers combine into a Deployment Readiness Score (0-100) with a verdict: De
 - Security basics — `SUPABASE_SERVICE_ROLE_KEY` + `ANTHROPIC_API_KEY` are server-only; no leaks into client bundles.
 
 ### Known bugs and broken behaviour (from the audit — fix before the next live demo):
-- **BUG 1 — API key UX on save** (`app/(dashboard)/settings/page.tsx:~44-49`). Keys *are* persisted, but the form clears inputs to `''` on save, creating the illusion of data loss. UX is still confusing even after prior fix commits.
-- **BUG 2 — `model_provider` NOT NULL band-aid** (`app/api/test/start/route.ts:6-24`). `MODEL_PROVIDERS` is a 4-entry hardcoded map; anything not in the map is inserted as the literal string `'Unknown'` instead of failing fast. Underlying mismatch between `/models/page.tsx` and the start route is unresolved.
-- **BUG 3 — Report page auto-regenerate race** (`app/(dashboard)/report/[id]/page.tsx:~76-92`). On load the page calls `POST /api/report/generate` *without* `await`, then re-queries immediately. Every reload triggers a new Claude hit and risks duplicate `remediation_items` inserts. No idempotency key, no in-flight lock.
-- **BUG 4 — `top_risks` and `compliance_checklist` generated but never persisted** (`app/api/report/generate/route.ts:~113-158`). Claude produces them, the route returns them, but the DB write is missing — so the report page sections are permanently empty.
-- **BUG 5 — Silent score fallback corrupts compliance score** (`app/api/test/run/route.ts:~195-206`). When Claude scoring fails, the probe silently defaults to `{score: 5, severity: 'medium'}` and is still averaged into `compliance_score`. This biases failed runs toward "medium risk" instead of surfacing them.
-- **BUG 6 — Layer 2 entirely absent.** `benchmark_results` table is never written. `capability_score` is always `NULL`. `readiness_score` is silently set to `compliance_score` rather than `(compliance + capability) / 2`. See `app/api/test/run/route.ts:~311`.
-- **BUG 7 — Benchmarks page is a "coming soon" stub** (`app/(dashboard)/benchmarks/page.tsx`).
-- **BUG 8 — `app/not-found.tsx` is untracked in git** — will 500 in dev if a stale build removes it. Commit it.
-- **BUG 9 — `lib/api/reports.ts:7-8` field name mismatch (NEW, found by Tester skill).** The `ReportProbe` interface declares `prompt: string` / `response: string`, but the underlying `test_probes` columns are `prompt_sent` / `response_received`, and `getReport()` at `lib/api/reports.ts:82` does `.select('*')` with no aliases — so Supabase returns the real column names and the report page reads `probe.prompt` / `probe.response` as `undefined`. The "Show prompt & response" details block in Section 4 of the report always renders blank. **Priority: P1 — demo-breaking.**
+- ~~**BUG 1**~~ — FIXED ✓ April 15 — settings page two-mode display (read-only masked + Change button).
+- ~~**BUG 2**~~ — FIXED ✓ April 15 — root cause: 3 duplicate model lists. Created `lib/models.ts` as single source of truth; route now 400s on unknown model IDs.
+- **BUG 3 — Report page auto-regenerate race** (`app/(dashboard)/report/[id]/page.tsx:~76-92`). Unchanged. P1.
+- **BUG 4 — `top_risks` and `compliance_checklist` generated but never persisted** (`app/api/report/generate/route.ts:~113-158`). Unchanged. P1.
+- **BUG 5 — Silent score fallback corrupts compliance score** (`app/api/test/run/route.ts:~195-206`). Unchanged. P1.
+- **BUG 6 — Layer 2 entirely absent.** Unchanged. P1.
+- **BUG 7 — Benchmarks page is a "coming soon" stub.** Unchanged. P2.
+- ~~**BUG 8**~~ — FIXED ✓ commit 72d1cc4 (not-found.tsx committed).
+- ~~**BUG 9**~~ — FIXED ✓ April 15 — fixed in BOTH `lib/api/reports.ts:7-8` AND `lib/api/tests.ts:17-18`. Also updated consumers at `app/(dashboard)/report/[id]/page.tsx:268-269` and `app/(dashboard)/test/[id]/page.tsx:350,358`.
 
 ### Infrastructure gaps (from audit §5.3):
 - **No authentication.** No middleware, no session, no user isolation. `test_runs.user_id` is schema-only.
@@ -380,7 +387,7 @@ For the demo, the flow is:
 1. Open compliance-sandbox.vercel.app
 2. Go to Use Cases → Virtual Health Assistant
 3. Click Start Test → select Gemini 1.5 Flash → Run
-4. Watch 40 probes stream live on screen
+4. Watch 43 probes stream live on screen
 5. View the generated compliance report with radar chart and findings
 6. Show the deployment readiness verdict
 
@@ -399,15 +406,17 @@ For the demo, the flow is:
 
 ## REMAINING WORK (priority order — from audit §7)
 
-### Phase 1 — Critical fixes before the next live demo
-1. Fix the `/report/[id]` auto-regenerate race — replace fire-and-forget `fetch` with an awaited server-side call or a DB-level in-flight lock. (BUG 3)
-2. Persist `top_risks` + `compliance_checklist` — `UPDATE test_runs SET …` inside `/api/report/generate` before returning. (BUG 4)
-3. Stop silently defaulting failed Claude scores to `5/medium` — mark as `severity: 'error'`, exclude from the average, surface on the report page. (BUG 5)
-4. Fix BUG 2 properly — validate `model` against a single source of truth shared between `/models/page.tsx` and `/api/test/start`, or 400 on unknown models.
-5. Fix BUG 1 UX — after save, repopulate the inputs with the masked value (not `''`) so the user can see the key is still there.
-6. Commit `app/not-found.tsx`. (BUG 8)
-7. Turn on Supabase RLS for `settings` (and later for test_runs/test_probes/benchmark_results/remediation_items).
-8. Add `.env.example` with the 4 required environment variables.
+### Phase 1 — Critical fixes before the next live demo (April 25)
+1. ~~BUG 1~~ FIXED ✓
+2. ~~BUG 2~~ FIXED ✓
+3. ~~BUG 8~~ FIXED ✓
+4. ~~BUG 9~~ FIXED ✓
+5. **BUG 3** — Fix `/report/[id]` auto-regenerate race (fire-and-forget fetch). P1.
+6. **BUG 4** — Persist `top_risks` + `compliance_checklist` via UPDATE. P1.
+7. **BUG 5** — Stop silent `5/medium` fallback on Claude scoring failure. P1.
+8. Turn on Supabase RLS for `settings` table (API keys readable via anon key).
+9. Add `.env.example` with the 4 required env vars.
+10. End-to-end live demo run on compliance-sandbox.vercel.app — full smoke test.
 
 ### Phase 2 — Core feature completion
 1. Implement Layer 2 (Capability Benchmarking): fetch 20 HuggingFace questions per use case, run, cache in `benchmark_results`, normalize to `capability_score`, compute `readiness_score = (compliance + capability) / 2`.
@@ -456,8 +465,15 @@ When receiving a task, match it to a skill BEFORE writing any code:
 
 Always read the relevant SKILL.md before starting work. Multiple skills may apply to one task.
 
-### Fixed bugs (this session):
+### Fixed bugs (verified, committed):
 - BUG 8 (not-found.tsx) — FIXED ✓ commit 72d1cc4
+- BUG 1 (settings UI — keys looked empty on reload) — FIXED ✓ [today's commit]
+- BUG 2 (model_provider null constraint — root cause: duplicated model lists) — FIXED ✓ [today's commit]
+- BUG 9 (TestProbe/ReportProbe field name mismatch) — FIXED ✓ [today's commit]
+
+### New since last session:
+- lib/models.ts created — single source of truth for model registry
+- Settings page now has two-mode display (read-only masked + Change button)
 
 ### Open P1 bugs (fix before demo, April 25):
 - BUG 1 — API key UX (settings page clears inputs)
@@ -468,26 +484,3 @@ Always read the relevant SKILL.md before starting work. Multiple skills may appl
 - BUG 6 — Layer 2 entirely absent
 - BUG 9 — lib/api/reports.ts field name mismatch (NEW, April 14)
 
-### Execution flow (mandatory, never skip):
-Planner → Tester → [Frontend/Backend/Database] → Manager → [User approves] → Editor
-
-### Current session progress:
-- skill-creator installed from github.com/anthropics/skills
-- frontend-design installed as base for frontend skill
-- Manager skill: interview in progress — user described scope, awaiting skill-creator draft
-
-### Manager skill scope (for context):
-Reads outputs from 5 specialist skills, detects conflicts, sequences changes for Next.js 14 / Supabase / Vercel stack, enforces hard rules (edge runtime, 4s delay, service role key never in frontend, npm run build 0 errors before push, never npm audit fix --force), outputs one numbered action plan for Editor only.
-### Skill status update — April 14
-- manager/ — COMPLETE ✓ iter-3, description optimization complete
-- editor/ — COMPLETE ✓ 3/3 tests passed. Refuses without GO, stops on failure, auto-inserts build before push
-- P1.3 (not-found.tsx) — FIXED ✓ commit 72d1cc4
-
-### BUG 9 (found by Tester skill — April 14)
-lib/api/reports.ts:7-8 field name mismatch.
-File uses `prompt` and `response` but DB columns are 
-`prompt_sent` and `response_received`.
-Effect: Section 4 (Detailed Findings per-probe table) always 
-renders blank — no probe data shows in the report.
-Priority: P1 — demo-breaking.
-Fix: easy, 1 file, ~30min.
