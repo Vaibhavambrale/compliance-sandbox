@@ -3,6 +3,7 @@
 You are the lead developer and architect for the AI Compliance Testing Sandbox. You have complete knowledge of everything built so far. You generate all code, explain every decision, catch bottlenecks before they happen, and always confirm with the user before starting a new phase. The user (Vaibhav) has no independent coding ability — every line of code comes from you.
 
 ---
+> **Before doing anything technical, read `~/sandbox_new/SCHEMA.md` first.** It is the authoritative source for the actual database schema, RLS state, and environment. If CLAUDE.md and SCHEMA.md disagree, SCHEMA.md wins.
 
 ## WHAT THIS PROJECT IS
 
@@ -20,12 +21,12 @@ Both layers combine into a Deployment Readiness Score (0-100) with a verdict: De
 
 > Last synced: **2026-04-14** — derived from a full audit (Opus 4.6, 1M ctx) committed as `project_state.md`. Branch `main` @ `c8648d3`. No code changes since the audit — the items below reflect *read-through-source* reality, not the old phase narrative.
 
-### Snapshot — April 15, 2026 (10 days to IEEE presentation)
+### Snapshot — April 16, 2026 (9 days to IEEE presentation)
 - All 7 skills installed and tested in `.claude/skills/`
-- 4 of 9 known bugs fixed (BUG 1, 2, 8, 9). 5 P1 bugs remain (3, 4, 5, 6, 7).
-- Build green, last commit pushed today with BUG 1/2/9 fixes.
+- 6 of 9 known bugs fixed (BUG 1, 2, 3, 4, 8, 9). 3 P1 bugs remain (5, 6, 7).
+- Build green. BUG 3 + BUG 4 fixed April 16 — no commit yet.
 - `lib/models.ts` added as single source of truth for model registry.
-- Next priority: BUG 3 + BUG 4 together (both in report generation path), then BUG 5, then Layer 2 (BUG 6).
+- Next priority: BUG 5 (silent score fallback), then Layer 2 / BUG 6.
 
 ### What is genuinely complete and working (verified against source):
 - Phase 1–10 scaffolding complete: Next.js 14 app, Supabase connected, Vercel auto-deploy, all 10 page routes, sidebar layout, error boundary.
@@ -34,7 +35,7 @@ Both layers combine into a Deployment Readiness Score (0-100) with a verdict: De
 - Probe engine — `app/api/test/run/route.ts` runs **43 probes** across 8 dimensions, SSE streaming, 4 s gate between calls, Claude-scored.
 - Live results page — consumes SSE with `ReadableStream` + `TextDecoder`, renders per-probe cards and per-dimension rollups.
 - 9-section compliance report page (486 LOC, `app/(dashboard)/report/[id]/page.tsx`) + `charts.tsx` (Recharts radar + bar).
-- Report generation — `/api/report/generate` calls Claude 3× for top risks / remediation / checklist; inserts `remediation_items`.
+- Report generation — `/api/report/generate` calls Claude 3× for top risks / remediation / checklist; inserts `remediation_items`; persists `top_risks` + `compliance_checklist` to `test_runs`.
 - History page — server-rendered table, URL-param filters and pagination.
 - Settings page — 3 API key fields + test defaults, round-trip through `/api/settings/{save,get}`.
 - Reference pages — `usecases`, `models`, `frameworks` — hardcoded but content-complete.
@@ -43,8 +44,8 @@ Both layers combine into a Deployment Readiness Score (0-100) with a verdict: De
 ### Known bugs and broken behaviour (from the audit — fix before the next live demo):
 - ~~**BUG 1**~~ — FIXED ✓ April 15 — settings page two-mode display (read-only masked + Change button).
 - ~~**BUG 2**~~ — FIXED ✓ April 15 — root cause: 3 duplicate model lists. Created `lib/models.ts` as single source of truth; route now 400s on unknown model IDs.
-- **BUG 3 — Report page auto-regenerate race** (`app/(dashboard)/report/[id]/page.tsx:~76-92`). Unchanged. P1.
-- **BUG 4 — `top_risks` and `compliance_checklist` generated but never persisted** (`app/api/report/generate/route.ts:~113-158`). Unchanged. P1.
+- ~~**BUG 3**~~ — FIXED ✓ April 16 — guard changed from `remediations.length === 0` to `testRun.top_risks === null`; generation fires once and never re-fires after `top_risks` is persisted.
+- ~~**BUG 4**~~ — FIXED ✓ April 16 — `app/api/report/generate/route.ts` now UPDATEs `test_runs` with `top_risks` and `compliance_checklist` before returning. Columns confirmed present in DB.
 - **BUG 5 — Silent score fallback corrupts compliance score** (`app/api/test/run/route.ts:~195-206`). Unchanged. P1.
 - **BUG 6 — Layer 2 entirely absent.** Unchanged. P1.
 - **BUG 7 — Benchmarks page is a "coming soon" stub.** Unchanged. P2.
@@ -411,8 +412,8 @@ For the demo, the flow is:
 2. ~~BUG 2~~ FIXED ✓
 3. ~~BUG 8~~ FIXED ✓
 4. ~~BUG 9~~ FIXED ✓
-5. **BUG 3** — Fix `/report/[id]` auto-regenerate race (fire-and-forget fetch). P1.
-6. **BUG 4** — Persist `top_risks` + `compliance_checklist` via UPDATE. P1.
+5. ~~BUG 3~~ FIXED ✓ April 16 — guard swapped to `testRun.top_risks === null`.
+6. ~~BUG 4~~ FIXED ✓ April 16 — route now UPDATEs `top_risks` + `compliance_checklist`.
 7. **BUG 5** — Stop silent `5/medium` fallback on Claude scoring failure. P1.
 8. Turn on Supabase RLS for `settings` table (API keys readable via anon key).
 9. Add `.env.example` with the 4 required env vars.
@@ -467,20 +468,19 @@ Always read the relevant SKILL.md before starting work. Multiple skills may appl
 
 ### Fixed bugs (verified, committed):
 - BUG 8 (not-found.tsx) — FIXED ✓ commit 72d1cc4
-- BUG 1 (settings UI — keys looked empty on reload) — FIXED ✓ [today's commit]
-- BUG 2 (model_provider null constraint — root cause: duplicated model lists) — FIXED ✓ [today's commit]
-- BUG 9 (TestProbe/ReportProbe field name mismatch) — FIXED ✓ [today's commit]
+- BUG 1 (settings UI — keys looked empty on reload) — FIXED ✓ commit 7a15131
+- BUG 2 (model_provider null constraint — root cause: duplicated model lists) — FIXED ✓ commit 7a15131
+- BUG 9 (TestProbe/ReportProbe field name mismatch) — FIXED ✓ commit 7a15131
+- BUG 3 (report auto-regenerate race) — FIXED ✓ April 16 (not yet committed)
+- BUG 4 (top_risks/compliance_checklist never persisted) — FIXED ✓ April 16 (not yet committed)
 
 ### New since last session:
 - lib/models.ts created — single source of truth for model registry
 - Settings page now has two-mode display (read-only masked + Change button)
+- top_risks and compliance_checklist confirmed present in test_runs (verified via information_schema)
 
 ### Open P1 bugs (fix before demo, April 25):
-- BUG 1 — API key UX (settings page clears inputs)
-- BUG 2 — model_provider 'Unknown' band-aid
-- BUG 3 — report auto-regenerate race
-- BUG 4 — top_risks/compliance_checklist never persisted
 - BUG 5 — silent score fallback corrupts compliance score
 - BUG 6 — Layer 2 entirely absent
-- BUG 9 — lib/api/reports.ts field name mismatch (NEW, April 14)
+- BUG 7 — Benchmarks page is a "coming soon" stub (P2)
 

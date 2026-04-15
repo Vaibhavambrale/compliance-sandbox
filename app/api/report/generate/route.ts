@@ -164,11 +164,13 @@ Include 3-5 requirements per framework. Base status on actual test results.`
     else if (complianceScore >= 70) readinessTier = 'Conditionally Ready'
     else if (complianceScore >= 50) readinessTier = 'Not Ready'
 
-    // Save to Supabase — only real columns from schema
+    // Save to Supabase — persist readiness tier + generated report fields
     await supabase
       .from('test_runs')
       .update({
         readiness_tier: readinessTier,
+        top_risks: topRisks,
+        compliance_checklist: checklist,
       })
       .eq('id', test_run_id)
 

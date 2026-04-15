@@ -1,14 +1,16 @@
 # Project State — AI Compliance Testing Sandbox
 
-  **Audit date:** 2026-04-14 *(original)* — **partial re-sync 2026-04-15 after BUG 1/2/9 fixes**
+  **Audit date:** 2026-04-14 *(original)* — **partial re-sync 2026-04-15 after BUG 1/2/9 fixes** — **partial re-sync 2026-04-16 after BUG 3/4 fixes**
 > **Auditor:** Claude (Opus 4.6, 1M ctx) — acting as Expert Systems Architect
-> **Branch:** `main` — advanced past `c8648d3` on April 15 with BUG 1/2/9 commit.
+> **Branch:** `main` — advanced past `c8648d3` on April 15 with BUG 1/2/9 commit. BUG 3/4 fixed April 16, not yet committed.
 > **Scope:** Full repository audit of `/home/vaibhav/sandbox_new`
 > **Intended use:** Single source of truth for onboarding, architectural planning, and pre-presentation readiness.
 
 This document is deliberately **brutally honest**. Where the code is messy, incomplete, or diverges from the documented spec, it is recorded as such with file paths and line numbers. Treat everything below as verified-by-reading-the-source, not verified-by-reading-the-README.
 
 **Re-sync note (2026-04-15):** BUG 1, BUG 2, BUG 8, and BUG 9 have been fixed and committed. `lib/models.ts` was created as a single source of truth for the model registry, eliminating the 3-way duplication that caused BUG 2. Settings page now uses a two-mode display (read-only masked + Change button). BUG 9 was discovered during the fix to be in TWO files (`lib/api/reports.ts` AND `lib/api/tests.ts`) — both fixed. Remaining P1 bugs (3, 4, 5, 6) and all infrastructure gaps from §5.3 are unchanged and still stand.
+
+**Re-sync note (2026-04-16):** BUG 3 and BUG 4 fixed (not yet committed). `top_risks` and `compliance_checklist` confirmed present in `test_runs` via `information_schema` query — no migration needed. `app/api/report/generate/route.ts` now UPDATEs both columns before returning. `app/(dashboard)/report/[id]/page.tsx` guard changed from `remediations.length === 0` to `testRun.top_risks === null` — generation fires exactly once and never re-fires after the data is persisted. Build: 0 errors. Remaining P1 bugs: 5, 6.
 
 ---
 
@@ -258,7 +260,7 @@ No synchronisation problems because there is no shared mutable state. The trade-
 | Item | File(s) | Evidence |
 |---|---|---|
 | **Report page auto-regeneration loop** | `app/(dashboard)/report/[id]/page.tsx:~76-92` | On load, if `status === 'complete'` and `remediations.length === 0`, the page calls `POST /api/report/generate` **without `await`**, then immediately re-queries `getReport()`. If Claude is slow, the refetch returns stale data; on the next reload the condition is still true and generation fires again — each reload is a new Claude hit and a potential duplicate insert into `remediation_items`. No idempotency key, no in-flight lock. |
-| **`POST /api/report/generate` computes but does not persist `top_risks` and `compliance_checklist`** | `app/api/report/generate/route.ts:~113-158` | The route generates these via Claude and returns them in the HTTP response, but **never writes them to the `test_runs` JSONB columns** that the report page reads from. This means the report page will always show these sections empty even after a successful regeneration. |
+| ~~**`POST /api/report/generate` computes but does not persist `top_risks` and `compliance_checklist`**~~ | `app/api/report/generate/route.ts:167-173` | **FIXED ✓ April 16** — route now UPDATEs `test_runs SET top_risks, compliance_checklist, readiness_tier` in a single call before returning. |
 | **Layer 2 benchmark testing — completely unimplemented** | `app/api/test/run/route.ts:~311` | Inline note: *"Layer 2 not yet implemented — use compliance score as proxy."* `benchmark_results` table is never inserted into. `capability_score` is always `NULL`. `readiness_score` is just `compliance_score`, not `(compliance + capability) / 2`. |
 | **Benchmarks page** | `app/(dashboard)/benchmarks/page.tsx` | 8-line "coming soon" stub. |
 | **PDF export** | `app/(dashboard)/report/[id]/print-button.tsx` | Button exists; `app/globals.css` lacks verified `@media print` rules to polish the output. |
@@ -324,8 +326,8 @@ No synchronisation problems because there is no shared mutable state. The trade-
 | 7 | Readiness-tier logic duplicated 3× | see §5.6 | Medium |
 | 8 | Claude scoring silently defaults to `5/medium` on error | `app/api/test/run/route.ts:~195-206` | **High** — corrupts the compliance score |
 | 9 | `/api/report/generate` returns `'{}'` on parse failure, swallows errors | `app/api/report/generate/route.ts:~37` | **High** |
-| 10 | Report page fires `POST /api/report/generate` without `await` | `app/(dashboard)/report/[id]/page.tsx:~76-92` | **High** — race + duplicate inserts |
-| 11 | `top_risks` and `compliance_checklist` generated but never persisted | `app/api/report/generate/route.ts:~113-158` | **High** |
+| 10 | ~~Report page fires `POST /api/report/generate` without `await`~~ | ~~`app/(dashboard)/report/[id]/page.tsx:~76-92`~~ | **FIXED ✓ April 16** — guard changed to `testRun.top_risks === null` |
+| 11 | ~~`top_risks` and `compliance_checklist` generated but never persisted~~ | ~~`app/api/report/generate/route.ts:~113-158`~~ | **FIXED ✓ April 16** — route now UPDATEs both columns |
 | 12 | `zod` installed but unused anywhere | `package.json` vs. all routes | Medium |
 | 13 | `@supabase/auth-helpers-nextjs` installed but unused | `package.json` | Low — dead dep |
 | 14 | Every `lib/api/*.ts` module re-declares its own types instead of sharing a generated DB type | `lib/api/*.ts` | Medium |
@@ -402,8 +404,8 @@ The project is ~70% of the way to a demoable MVP but has several silent-data-cor
 
 ### Phase 1 — Critical fixes & quick wins *(do before the next live demo run)*
 
-1. **Fix the `/report/[id]` auto-regenerate race.** Replace the non-awaited fire-and-forget `fetch` with a proper server-side call inside the Server Component (or an in-flight lock in the DB). Current behaviour: every reload triggers a new Claude hit. File: `app/(dashboard)/report/[id]/page.tsx:~76-92`. **STILL OPEN — BUG 3.**
-2. **Persist `top_risks` + `compliance_checklist`.** The `/api/report/generate` route must `UPDATE test_runs SET top_risks = ..., compliance_checklist = ...` before returning. File: `app/api/report/generate/route.ts:~113-158`. **STILL OPEN — BUG 4.**
+1. ~~**Fix the `/report/[id]` auto-regenerate race.**~~ **FIXED ✓ April 16** — guard changed from `remediations.length === 0` to `testRun.top_risks === null`. File: `app/(dashboard)/report/[id]/page.tsx:76`.
+2. ~~**Persist `top_risks` + `compliance_checklist`.**~~ **FIXED ✓ April 16** — route UPDATEs `test_runs` with both columns before returning. File: `app/api/report/generate/route.ts:167-173`.
 3. **Stop silently defaulting failed Claude scores to `5/medium`.** Mark the probe as `severity: 'error'`, exclude it from the compliance score average, and surface it on the report page. File: `app/api/test/run/route.ts:~195-206`. **STILL OPEN — BUG 5.**
 4. ~~**Finish BUG 2 properly.**~~ ✅ DONE April 15 — created `lib/models.ts` as single source of truth, route now returns 400 on unknown model IDs.
 5. ~~**Finish BUG 1 UX.**~~ ✅ DONE April 15 — settings page now has two-mode display (read-only masked + Change button).

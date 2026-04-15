@@ -71,9 +71,9 @@ export default async function ReportPage({ params }: { params: { id: string } })
     )
   }
 
-  // If the test is complete but remediation has not been generated yet,
+  // If the test is complete but top_risks have not been persisted yet,
   // call the report generator once and refetch.
-  if (report.testRun.status === 'complete' && report.remediations.length === 0) {
+  if (report.testRun.status === 'complete' && report.testRun.top_risks === null) {
     try {
       const headersList = headers()
       const host = headersList.get('host')
