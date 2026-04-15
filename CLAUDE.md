@@ -431,15 +431,30 @@ For the demo, the flow is:
 
 Skills live in `.claude/skills/`. Claude Code reads them automatically.
 
-### Skills installed:
-- `skill-creator/` — Anthropic's official skill builder. Use this to create all other skills.
-- `frontend/` — Anthropic's frontend-design skill. Extended for this project's UI conventions.
-- `manager/` — IN PROGRESS. Senior lead skill that sequences all other skill outputs.
-- `editor/` — Empty. Executes Manager's plan only.
-- `tester/` — Empty. Senior QA analysis.
-- `planner/` — Empty. Research and feature planning.
-- `backend/` — Empty. API routes, SSE, Claude API calls.
-- `database/` — Empty. Supabase schema and migrations.
+### Execution flow (mandatory, never skip):
+Planner → Tester → [Frontend/Backend/Database] → Manager → [User approves] → Editor
+
+### Skills status (last updated: April 14):
+- `skill-creator/` — COMPLETE ✓ Anthropic official. Use to build all skills.
+- `frontend/` — COMPLETE ✓ Anthropic frontend-design base. Needs project-specific extension.
+- `manager/` — COMPLETE ✓ iter-3. GO/NO-GO verdict. 2 modes: Manager + Savior.
+- `editor/` — COMPLETE ✓ 3/3 tests passed. Refuses without GO, stops on failure.
+- `tester/` — COMPLETE ✓ 3/3 tests passed. Audit + Risk modes. Found BUG 9.
+- `planner/` — COMPLETE ✓ 3/3 tests passed. Feature Planning + Prioritization modes.
+- `backend/` — NOT STARTED.
+- `database/` — NOT STARTED.
+
+### Fixed bugs (this session):
+- BUG 8 (not-found.tsx) — FIXED ✓ commit 72d1cc4
+
+### Open P1 bugs (fix before demo, April 25):
+- BUG 1 — API key UX (settings page clears inputs)
+- BUG 2 — model_provider 'Unknown' band-aid
+- BUG 3 — report auto-regenerate race
+- BUG 4 — top_risks/compliance_checklist never persisted
+- BUG 5 — silent score fallback corrupts compliance score
+- BUG 6 — Layer 2 entirely absent
+- BUG 9 — lib/api/reports.ts field name mismatch (NEW, April 14)
 
 ### Execution flow (mandatory, never skip):
 Planner → Tester → [Frontend/Backend/Database] → Manager → [User approves] → Editor
