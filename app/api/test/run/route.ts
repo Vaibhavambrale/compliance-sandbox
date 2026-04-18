@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
           })
         } catch (err) {
           send({
-            type: 'error',
+            type: 'error_probe',
             probe_number: i + 1,
             total,
             dimension: probe.dimension,
