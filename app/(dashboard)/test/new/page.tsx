@@ -46,8 +46,11 @@ function NewTestPageInner() {
   const [advEndpoint, setAdvEndpoint] = useState('')
   const [advApiKey, setAdvApiKey] = useState('')
   const [advFormat, setAdvFormat] = useState<'openai' | 'anthropic' | 'google' | 'custom'>('openai')
-  // For HuggingFace model name — need separate token
-  const [hfToken, setHfToken] = useState('')
+  // For HuggingFace — need model name + resolved provider endpoint
+  const [hfModelName, setHfModelName] = useState('')
+  const [hfResolved, setHfResolved] = useState<{ endpoint: string; providerId: string; provider: string } | null>(null)
+  const [hfResolving, setHfResolving] = useState(false)
+  const [hfError, setHfError] = useState<string | null>(null)
 
   // Validation
   const [validating, setValidating] = useState(false)
@@ -99,14 +102,50 @@ function NewTestPageInner() {
     }
   }, [useCaseDescription])
 
+  // Resolve HuggingFace model to correct provider endpoint
+  async function resolveHFModel() {
+    if (!hfModelName.trim() || !smartInput.trim()) return
+    setHfResolving(true)
+    setHfError(null)
+    setHfResolved(null)
+    try {
+      const res = await fetch('/api/model/hf-resolve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ modelId: hfModelName, apiKey: smartInput }),
+      })
+      const data = await res.json()
+      if (data.resolved) {
+        setHfResolved({ endpoint: data.endpoint, providerId: data.providerId, provider: data.provider })
+        setModelId(data.providerId)
+        setDisplayName(data.modelName)
+      } else {
+        setHfError(data.error || 'Could not resolve model')
+      }
+    } catch {
+      setHfError('Network error resolving model')
+    } finally {
+      setHfResolving(false)
+    }
+  }
+
   // Build the final model config for API calls
   function getModelConfig() {
+    // HuggingFace with resolved provider
+    if (detected?.provider === 'huggingface' && hfResolved) {
+      return {
+        name: displayName || hfModelName,
+        apiEndpoint: hfResolved.endpoint,
+        apiKey: smartInput,
+        modelId: hfResolved.providerId,
+        apiFormat: 'openai' as const,
+      }
+    }
     if (detected?.detected && !showAdvanced) {
-      const apiKey = detected.inputType === 'model_name' ? hfToken : detected.apiKey
       return {
         name: displayName || detected.displayName,
         apiEndpoint: detected.apiEndpoint,
-        apiKey,
+        apiKey: detected.apiKey,
         modelId: modelId || detected.modelId,
         apiFormat: detected.apiFormat,
       }
@@ -265,24 +304,53 @@ function NewTestPageInner() {
             </div>
           )}
 
-          {/* HuggingFace needs a separate token */}
-          {detected?.inputType === 'model_name' && (
-            <div className="space-y-2">
-              <Label htmlFor="hf-token" className="text-sm">HuggingFace API Token</Label>
-              <Input
-                id="hf-token"
-                type="password"
-                placeholder="hf_..."
-                value={hfToken}
-                onChange={(e) => { setHfToken(e.target.value); setValidated(false) }}
-                className="font-mono text-sm"
-              />
-              <p className="text-[11px] text-gray-400">Get a free token at huggingface.co/settings/tokens</p>
+          {/* HuggingFace: model name input + provider resolution */}
+          {detected?.provider === 'huggingface' && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="hf-model" className="text-sm">HuggingFace Model Name</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="hf-model"
+                    placeholder="e.g., meta-llama/Llama-3.1-8B-Instruct"
+                    value={hfModelName}
+                    onChange={(e) => { setHfModelName(e.target.value); setHfResolved(null); setValidated(false) }}
+                    className="text-sm font-mono"
+                  />
+                  <Button
+                    onClick={resolveHFModel}
+                    disabled={!hfModelName.trim() || hfResolving}
+                    variant="outline"
+                    size="sm"
+                    className="shrink-0"
+                  >
+                    {hfResolving ? <><Loader2 size={14} className="mr-1 animate-spin" /> Resolving...</> : 'Find Model'}
+                  </Button>
+                </div>
+                <p className="text-[11px] text-gray-400">Enter the full model path from huggingface.co (e.g., org/model-name)</p>
+              </div>
+
+              {hfResolved && (
+                <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-50 border border-emerald-200">
+                  <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
+                  <div className="text-sm">
+                    <p className="font-medium text-emerald-800">Model found — using {hfResolved.provider} provider</p>
+                    <p className="text-xs text-emerald-600 mt-0.5">{hfResolved.endpoint}</p>
+                  </div>
+                </div>
+              )}
+
+              {hfError && (
+                <div className="flex items-center gap-2 p-3 rounded-lg bg-red-50 border border-red-200">
+                  <AlertCircle size={16} className="text-red-600 shrink-0" />
+                  <p className="text-sm text-red-700">{hfError}</p>
+                </div>
+              )}
             </div>
           )}
 
-          {/* Model ID selection */}
-          {detected?.detected && (
+          {/* Model ID + Display Name for non-HF providers */}
+          {detected?.detected && detected.provider !== 'huggingface' && (
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="model-id" className="text-sm">Model</Label>
@@ -356,8 +424,8 @@ function NewTestPageInner() {
             </div>
           )}
 
-          {/* Test Connection */}
-          {(detected?.detected || showAdvanced) && (
+          {/* Test Connection — show when we have enough info to test */}
+          {((detected?.detected && detected.provider !== 'huggingface') || (detected?.provider === 'huggingface' && hfResolved) || showAdvanced) && (
             <div className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 bg-white">
               <Button onClick={handleTestConnection} disabled={validating} variant="outline" size="sm" className="shrink-0">
                 {validating ? <><Loader2 size={14} className="mr-1 animate-spin" /> Testing...</> : 'Test Connection'}

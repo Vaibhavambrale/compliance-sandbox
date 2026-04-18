@@ -13,14 +13,10 @@ export interface ModelConfig {
 }
 
 export async function callUserModel(config: ModelConfig, prompt: string): Promise<string> {
-  // HuggingFace router uses OpenAI-compatible format
-  // If endpoint is the base router URL (no /v1/chat/completions), append it
-  if (config.apiEndpoint.includes('router.huggingface.co') && !config.apiEndpoint.includes('/v1/chat/completions')) {
-    const hfConfig = {
-      ...config,
-      apiEndpoint: `${config.apiEndpoint.replace(/\/$/, '')}/${config.modelId}/v1/chat/completions`,
-    }
-    return callOpenAICompatible(hfConfig, prompt)
+  // HuggingFace router — endpoint already includes the provider path
+  // e.g., https://router.huggingface.co/cerebras/v1/chat/completions
+  if (config.apiEndpoint.includes('router.huggingface.co')) {
+    return callOpenAICompatible(config, prompt)
   }
 
   switch (config.apiFormat) {

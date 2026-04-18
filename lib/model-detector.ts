@@ -67,10 +67,10 @@ const PROVIDER_PATTERNS: ProviderPattern[] = [
     provider: 'huggingface',
     providerName: 'HuggingFace',
     patterns: [/^hf_/i],
-    apiEndpoint: 'https://router.huggingface.co/hf-inference/models',
-    apiFormat: 'openai', // HF now supports OpenAI-compatible chat/completions
-    suggestedModels: ['meta-llama/Llama-3.1-8B-Instruct', 'mistralai/Mistral-7B-Instruct-v0.3', 'google/gemma-2-9b-it'],
-    defaultModel: 'meta-llama/Llama-3.1-8B-Instruct',
+    apiEndpoint: '', // resolved dynamically via /api/model/hf-resolve
+    apiFormat: 'openai',
+    suggestedModels: [], // no hardcoded models — user types model name, system resolves provider
+    defaultModel: '',
   },
 ]
 
