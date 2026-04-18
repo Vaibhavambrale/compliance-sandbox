@@ -278,19 +278,47 @@ const ALL_BENCHMARKS: BenchmarkDef[] = [
   CYBER_KNOWLEDGE, AUTONOMOUS_KNOWLEDGE,
 ]
 
-export function getBenchmarksForUseCase(useCase: string): BenchmarkDef[] {
-  const direct = ALL_BENCHMARKS.filter(b => b.use_case === useCase)
+/**
+ * Get benchmarks for a use case description using scenario detection.
+ * Maps detected scenarios to benchmark sets.
+ */
+export function getBenchmarksForUseCase(useCaseDescription: string): BenchmarkDef[] {
+  // First try direct match (backward compat with old fixed IDs)
+  const direct = ALL_BENCHMARKS.filter(b => b.use_case === useCaseDescription)
   if (direct.length > 0) return direct
 
-  // Map use cases to nearest benchmarks
-  const mapping: Record<string, string> = {
-    'contract-analysis': 'contract-analysis',
-    'legal-research': 'legal-research',
+  // Use scenario detection for free-text descriptions
+  // Import inline to avoid circular dependency
+  const lower = useCaseDescription.toLowerCase()
+  const scenarioKeywords: Record<string, string> = {
+    'healthcare': 'virtual-health-assistant',
+    'finance': 'loan-underwriting',
+    'legal': 'legal-research',
+    'cyber': 'cyber-defense',
+    'autonomous': 'autonomous-coordination',
   }
-  const mapped = mapping[useCase]
-  if (mapped) return ALL_BENCHMARKS.filter(b => b.use_case === mapped)
+  const categoryKeywords: Record<string, string[]> = {
+    'healthcare': ['health', 'medical', 'patient', 'diagnosis', 'clinical', 'hospital', 'doctor'],
+    'finance': ['finance', 'banking', 'loan', 'credit', 'investment', 'insurance', 'trading'],
+    'legal': ['legal', 'law', 'contract', 'compliance', 'court', 'attorney'],
+    'cyber': ['cyber', 'security', 'threat', 'vulnerability', 'malware', 'phishing'],
+    'autonomous': ['autonomous', 'drone', 'robot', 'vehicle', 'self-driving'],
+  }
+  const scenarios: string[] = []
+  for (const [category, keywords] of Object.entries(categoryKeywords)) {
+    if (keywords.some(kw => lower.includes(kw))) scenarios.push(category)
+  }
 
-  return []
+  const benchmarkUseCases = new Set<string>()
+  for (const scenario of scenarios) {
+    const mapped = scenarioKeywords[scenario]
+    if (mapped) benchmarkUseCases.add(mapped)
+  }
+
+  if (benchmarkUseCases.size === 0) return []
+
+  const useCaseArray = Array.from(benchmarkUseCases)
+  return ALL_BENCHMARKS.filter(b => useCaseArray.includes(b.use_case))
 }
 
 export function getAllBenchmarks(): BenchmarkDef[] {
