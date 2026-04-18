@@ -14,6 +14,7 @@ import {
 import { Separator } from '@/components/ui/separator'
 import ReportCharts from './charts'
 import PrintButton from './print-button'
+import BenchmarkButton from './benchmark-button'
 import { computeReadinessTier } from '@/lib/scoring'
 
 const readinessTier = computeReadinessTier
@@ -445,7 +446,17 @@ export default async function ReportPage({ params }: { params: { id: string } })
       {/* SECTION 7 - Capability Benchmark Results */}
       <Card>
         <CardHeader>
-          <CardTitle>Capability Benchmark Results</CardTitle>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Capability Benchmark Results</CardTitle>
+              <CardDescription className="mt-1">
+                Domain-specific knowledge, truthfulness, and fairness benchmarks
+              </CardDescription>
+            </div>
+            {benchmarks.length === 0 && (
+              <BenchmarkButton testRunId={params.id} useCase={testRun.use_case} />
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           {benchmarks.length > 0 ? (
@@ -478,7 +489,7 @@ export default async function ReportPage({ params }: { params: { id: string } })
             </div>
           ) : (
             <p className="text-muted-foreground text-sm">
-              Benchmark testing coming in Phase 8.
+              No benchmarks run yet. Use the button above to run capability benchmarks against your model.
             </p>
           )}
         </CardContent>
@@ -553,7 +564,7 @@ export default async function ReportPage({ params }: { params: { id: string } })
           ) : (
             <p className="text-muted-foreground text-sm">
               {benchmarks.length === 0
-                ? 'Benchmark testing coming in Phase 8.'
+                ? 'Run capability benchmarks first to see remediation suggestions.'
                 : 'All benchmarks passed. No remediation needed.'}
             </p>
           )}
