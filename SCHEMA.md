@@ -2,7 +2,7 @@
 
 > This file is the SINGLE SOURCE OF TRUTH for the actual state of the database, environment, and external services. If anything in CLAUDE.md or project_state.md contradicts this file, THIS FILE WINS. Update this file IMMEDIATELY when any schema/env/infra change is made — never rely on memory.
 
-> Last verified: 2026-04-15 (schema confirmed via Supabase SQL editor dump)
+> Last verified: 2026-04-18 (schema confirmed via Supabase MCP `information_schema` query)
 
 ---
 
@@ -27,10 +27,15 @@ CREATE TABLE test_runs (
   compliance_tier text,
   user_id uuid,
   top_risks text[],
-  compliance_checklist jsonb
+  compliance_checklist jsonb,
+  model_endpoint text,
+  model_api_format text,
+  region text,
+  framework_scores jsonb,
+  eval_aggregate jsonb
 );
 ```
-**Verified 2026-04-16:** `top_risks` and `compliance_checklist` confirmed present via `information_schema` query. All columns accounted for.
+**Verified 2026-04-18:** `model_endpoint`, `model_api_format`, `region`, `framework_scores`, `eval_aggregate` added via Supabase MCP.
 
 ### test_probes
 ```sql
@@ -44,9 +49,15 @@ CREATE TABLE test_probes (
   score integer,
   severity text,
   violation text,
-  ideal_response text
+  ideal_response text,
+  framework_id text,
+  probe_id text,
+  eval_metrics jsonb,
+  response_time_ms integer,
+  token_count integer
 );
 ```
+**Verified 2026-04-18:** `framework_id`, `probe_id`, `eval_metrics`, `response_time_ms`, `token_count` added via Supabase MCP.
 
 ### benchmark_results
 ```sql
@@ -89,6 +100,7 @@ CREATE TABLE settings (
   created_at timestamptz DEFAULT now()
 );
 ```
+**Note:** Only `anthropic_api_key` is stored here now (used for report generation). User model API keys are passed per-test via BYOM — never persisted.
 
 ---
 
@@ -113,9 +125,9 @@ CREATE TABLE settings (
 | `NEXT_PUBLIC_SUPABASE_URL` | yes | Project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | yes | Browser-safe |
 | `SUPABASE_SERVICE_ROLE_KEY` | yes | SERVER ONLY — bypasses RLS |
-| `ANTHROPIC_API_KEY` | yes | For scoring + report generation |
+| `ANTHROPIC_API_KEY` | yes | For report generation (Claude narrative only) |
 
-User-supplied Gemini and Groq keys are stored in the `settings` table, NOT in env.
+User model API keys are provided per-test via BYOM configuration — NOT stored in settings or env.
 
 ---
 
@@ -125,6 +137,52 @@ User-supplied Gemini and Groq keys are stored in the `settings` table, NOT in en
 - **Vercel:** `vaibhavambrales-projects/compliance-sandbox`, auto-deploys on push to `main`
 - **GitHub:** `Vaibhavambrale/compliance-sandbox` (private)
 - **No CI, no cron, no Sentry, no rate limiting**
+
+---
+
+## JSONB Column Schemas
+
+### `eval_metrics` (on test_probes)
+```json
+{
+  "accuracy": 0.85,
+  "calibration": 0.72,
+  "robustness": null,
+  "fairness": null,
+  "bias": 0.95,
+  "toxicity": 0.98,
+  "efficiency": 0.80
+}
+```
+
+### `eval_aggregate` (on test_runs)
+Same shape as `eval_metrics` — averaged across all probes in the test run.
+
+### `framework_scores` (on test_runs)
+```json
+{
+  "india-dpdp-2023": {
+    "score": 72,
+    "passed": true,
+    "dimensions": {
+      "Privacy": 78,
+      "Bias": 65,
+      "Transparency": 80
+    }
+  }
+}
+```
+
+### `sample_questions` (on benchmark_results)
+```json
+[
+  {
+    "question": "A 55-year-old male presents with...",
+    "modelAnswer": "Based on the symptoms...",
+    "correct": true
+  }
+]
+```
 
 ---
 

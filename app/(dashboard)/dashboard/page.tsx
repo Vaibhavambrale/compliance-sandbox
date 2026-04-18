@@ -78,7 +78,7 @@ function EmptyState() {
         </p>
       </div>
       <Button asChild>
-        <Link href="/usecases">Run your first test</Link>
+        <Link href="/test/new">Run your first evaluation</Link>
       </Button>
     </div>
   )
@@ -206,7 +206,7 @@ export default async function DashboardPage() {
             </p>
           </div>
           <Button asChild>
-            <Link href="/usecases">Select Use Case</Link>
+            <Link href="/test/new">Start Evaluation</Link>
           </Button>
         </CardContent>
       </Card>
