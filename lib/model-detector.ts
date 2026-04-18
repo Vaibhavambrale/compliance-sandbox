@@ -67,8 +67,8 @@ const PROVIDER_PATTERNS: ProviderPattern[] = [
     provider: 'huggingface',
     providerName: 'HuggingFace',
     patterns: [/^hf_/i],
-    apiEndpoint: 'https://api-inference.huggingface.co/models',
-    apiFormat: 'custom',
+    apiEndpoint: 'https://router.huggingface.co/hf-inference/models',
+    apiFormat: 'openai', // HF now supports OpenAI-compatible chat/completions
     suggestedModels: ['meta-llama/Llama-3.1-8B-Instruct', 'mistralai/Mistral-7B-Instruct-v0.3', 'google/gemma-2-9b-it'],
     defaultModel: 'meta-llama/Llama-3.1-8B-Instruct',
   },
@@ -112,8 +112,8 @@ export function detectFromInput(input: string): DetectedModel {
     return {
       provider: 'huggingface',
       providerName: 'HuggingFace',
-      apiEndpoint: `https://api-inference.huggingface.co/models/${trimmed}`,
-      apiFormat: 'custom',
+      apiEndpoint: `https://router.huggingface.co/hf-inference/models/${trimmed}/v1/chat/completions`,
+      apiFormat: 'openai', // HF uses OpenAI-compatible chat/completions
       apiKey: '', // user needs to provide HF token separately
       modelId: trimmed,
       suggestedModels: [trimmed],
