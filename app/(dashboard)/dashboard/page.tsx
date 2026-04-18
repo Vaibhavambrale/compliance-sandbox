@@ -94,9 +94,14 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
+        <div>
+          <h1 className="text-2xl font-bold">Dashboard</h1>
+          <p className="text-xs text-muted-foreground mt-1">
+            Programmatic multi-metric evaluation &middot; 7 deterministic scoring metrics
+          </p>
+        </div>
         <Button asChild variant="outline">
-          <Link href="/usecases">+ New Test</Link>
+          <Link href="/test/new">+ New Evaluation</Link>
         </Button>
       </div>
 

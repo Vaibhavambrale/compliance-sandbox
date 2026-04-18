@@ -7,6 +7,7 @@ export type TestRun = {
   compliance_score: number | null
   capability_score: number | null
   readiness_tier: string | null
+  framework_scores: Record<string, { score: number; passed: boolean }> | null
   status: string
   created_at: string
 }
@@ -34,7 +35,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     supabase.from('test_probes').select('dimension').lt('score', 5),
     supabase
       .from('test_runs')
-      .select('id, model_name, use_case, compliance_score, capability_score, readiness_tier, status, created_at')
+      .select('id, model_name, use_case, compliance_score, capability_score, readiness_tier, framework_scores, status, created_at')
       .order('created_at', { ascending: false })
       .limit(5),
   ])
