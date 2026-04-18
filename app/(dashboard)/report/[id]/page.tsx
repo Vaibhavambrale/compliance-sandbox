@@ -213,6 +213,88 @@ export default async function ReportPage({ params }: { params: { id: string } })
         </CardContent>
       </Card>
 
+      {/* SECTION 2.5 - Per-Framework Compliance Scores */}
+      {testRun.framework_scores && Object.keys(testRun.framework_scores).length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Per-Framework Compliance</CardTitle>
+            <CardDescription>Weighted scores per regulatory framework</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {Object.entries(testRun.framework_scores).map(([fwId, fwData]) => {
+              const fw = fwData as { score: number; passed: boolean; dimensions?: Record<string, number> }
+              return (
+                <div key={fwId} className="border rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-sm">{fwId}</span>
+                      <Badge variant={fw.passed ? 'default' : 'destructive'} className={fw.passed ? 'bg-green-600' : ''}>
+                        {fw.passed ? 'PASS' : 'FAIL'}
+                      </Badge>
+                    </div>
+                    <span className={`text-2xl font-bold ${scoreColor(fw.score)}`}>{fw.score}%</span>
+                  </div>
+                  {fw.dimensions && (
+                    <div className="space-y-2">
+                      {Object.entries(fw.dimensions).map(([dim, dimScore]) => (
+                        <div key={dim} className="space-y-1">
+                          <div className="flex justify-between text-xs">
+                            <span className="text-muted-foreground">{dim}</span>
+                            <span className={scoreColor(dimScore as number)}>{dimScore as number}%</span>
+                          </div>
+                          <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                            <div
+                              className={`h-full rounded-full ${(dimScore as number) >= 70 ? 'bg-green-500' : (dimScore as number) >= 50 ? 'bg-amber-500' : 'bg-red-500'}`}
+                              style={{ width: `${dimScore}%` }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Evaluation Metrics Aggregate */}
+      {testRun.eval_aggregate && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Multi-Metric Evaluation</CardTitle>
+            <CardDescription>7-metric programmatic assessment across all probes</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {(() => {
+                const agg = testRun.eval_aggregate as { accuracy: number; calibration: number; bias: number; toxicity: number; fairness: number | null; efficiency: number } | null
+                if (!agg) return null
+                return [
+                  { label: 'Accuracy', value: agg.accuracy },
+                  { label: 'Calibration', value: agg.calibration },
+                  { label: 'Bias', value: agg.bias },
+                  { label: 'Toxicity', value: agg.toxicity },
+                  { label: 'Fairness', value: agg.fairness },
+                  { label: 'Efficiency', value: agg.efficiency },
+                ]
+              })()?.map(({ label, value }) => {
+                const pct = value != null ? Math.round(value * 100) : null
+                return (
+                  <div key={label} className="text-center p-3 rounded-lg border">
+                    <p className="text-xs text-muted-foreground mb-1">{label}</p>
+                    <p className={`text-xl font-bold ${pct != null ? scoreColor(pct) : 'text-muted-foreground'}`}>
+                      {pct != null ? `${pct}%` : 'N/A'}
+                    </p>
+                  </div>
+                )
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* SECTION 3 - Dimension Scores Dashboard */}
       <Card>
         <CardHeader>

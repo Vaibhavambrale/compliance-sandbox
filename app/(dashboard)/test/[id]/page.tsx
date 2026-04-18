@@ -16,6 +16,16 @@ import {
   type TestProbe,
 } from '@/lib/api/tests'
 
+interface LiveEvalMetrics {
+  accuracy: number
+  calibration: number
+  robustness: number | null
+  fairness: number | null
+  bias: number
+  toxicity: number
+  efficiency: number
+}
+
 interface LiveProbe {
   probe_number: number
   total: number
@@ -24,6 +34,18 @@ interface LiveProbe {
   severity: string
   prompt?: string
   response?: string
+  eval_metrics?: LiveEvalMetrics
+}
+
+function MetricBadge({ label, value }: { label: string; value: number | null }) {
+  if (value === null) return null
+  const pct = Math.round(value * 100)
+  const color = pct >= 70 ? 'bg-green-50 text-green-700 border-green-200' : pct >= 50 ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-red-50 text-red-700 border-red-200'
+  return (
+    <span className={`inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] font-medium ${color}`} title={label}>
+      {label[0].toUpperCase()}: {pct}%
+    </span>
+  )
 }
 
 const SECONDS_PER_PROBE = 6 // ~4s delay + API calls
@@ -124,6 +146,7 @@ export default function TestDetailPage({ params }: { params: { id: string } }) {
                     dimension: data.dimension,
                     score: data.score,
                     severity: data.severity,
+                    eval_metrics: data.eval_metrics,
                   },
                   ...prev,
                 ])
@@ -342,6 +365,16 @@ export default function TestDetailPage({ params }: { params: { id: string } }) {
                     </Badge>
                   </div>
                 </div>
+                {probe.eval_metrics && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    <MetricBadge label="Accuracy" value={probe.eval_metrics.accuracy} />
+                    <MetricBadge label="Calibration" value={probe.eval_metrics.calibration} />
+                    <MetricBadge label="Bias" value={probe.eval_metrics.bias} />
+                    <MetricBadge label="Toxicity" value={probe.eval_metrics.toxicity} />
+                    <MetricBadge label="Fairness" value={probe.eval_metrics.fairness} />
+                    <MetricBadge label="Efficiency" value={probe.eval_metrics.efficiency} />
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))}
@@ -366,6 +399,16 @@ export default function TestDetailPage({ params }: { params: { id: string } }) {
                     </Badge>
                   </div>
                 </div>
+                {probe.eval_metrics && (
+                  <div className="flex flex-wrap gap-1">
+                    <MetricBadge label="Accuracy" value={probe.eval_metrics.accuracy} />
+                    <MetricBadge label="Calibration" value={probe.eval_metrics.calibration} />
+                    <MetricBadge label="Bias" value={probe.eval_metrics.bias} />
+                    <MetricBadge label="Toxicity" value={probe.eval_metrics.toxicity} />
+                    <MetricBadge label="Fairness" value={probe.eval_metrics.fairness} />
+                    <MetricBadge label="Efficiency" value={probe.eval_metrics.efficiency} />
+                  </div>
+                )}
                 <details className="text-sm">
                   <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
                     Show prompt
