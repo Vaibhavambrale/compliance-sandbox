@@ -48,7 +48,7 @@ function MetricBadge({ label, value }: { label: string; value: number | null }) 
   )
 }
 
-const SECONDS_PER_PROBE = 6 // ~4s delay + API calls
+// Dynamic time estimation replaces fixed SECONDS_PER_PROBE
 
 function scoreColor(score: number) {
   if (score >= 7) return 'bg-emerald-500/10 text-emerald-600'
@@ -76,11 +76,14 @@ export default function TestDetailPage({ params }: { params: { id: string } }) {
   const [testRun, setTestRun] = useState<TestRun | null>(null)
   const [probes, setProbes] = useState<LiveProbe[]>([])
   const [savedProbes, setSavedProbes] = useState<TestProbe[]>([])
-  const [status, setStatus] = useState<'loading' | 'running' | 'complete' | 'failed'>('loading')
+  const [status, setStatus] = useState<'loading' | 'running' | 'complete' | 'failed' | 'cancelled'>('loading')
   const [completed, setCompleted] = useState(0)
   const [totalProbes, setTotalProbes] = useState(50)
   const [complianceScore, setComplianceScore] = useState<number | null>(null)
+  const [avgProbeTime, setAvgProbeTime] = useState(6) // seconds per probe, updated dynamically
   const streamStarted = useRef(false)
+  const readerRef = useRef<ReadableStreamDefaultReader<Uint8Array> | null>(null)
+  const streamStartTimeRef = useRef<number>(0)
 
   useEffect(() => {
     async function startStream(run: TestRun) {
@@ -116,6 +119,8 @@ export default function TestDetailPage({ params }: { params: { id: string } }) {
           setStatus('failed')
           return
         }
+        readerRef.current = reader
+        streamStartTimeRef.current = Date.now()
 
         const decoder = new TextDecoder()
         let buffer = ''
@@ -151,6 +156,11 @@ export default function TestDetailPage({ params }: { params: { id: string } }) {
                   ...prev,
                 ])
                 setCompleted(data.probe_number)
+                // Dynamic time estimation
+                if (streamStartTimeRef.current && data.probe_number > 1) {
+                  const elapsed = (Date.now() - streamStartTimeRef.current) / 1000
+                  setAvgProbeTime(elapsed / data.probe_number)
+                }
               } else if (data.type === 'error_probe') {
                 setProbes((prev) => [
                   {
@@ -209,7 +219,17 @@ export default function TestDetailPage({ params }: { params: { id: string } }) {
 
   const progressPercent = (completed / totalProbes) * 100
   const remaining = Math.max(0, totalProbes - completed)
-  const minutesLeft = Math.ceil((remaining * SECONDS_PER_PROBE) / 60)
+  const secondsLeft = Math.ceil(remaining * avgProbeTime)
+  const minutesLeft = Math.floor(secondsLeft / 60)
+  const secsLeft = secondsLeft % 60
+
+  async function handleCancel() {
+    if (readerRef.current) {
+      await readerRef.current.cancel()
+      readerRef.current = null
+    }
+    setStatus('cancelled')
+  }
 
   // Build dimension scores from either live probes or saved probes
   const dimensionScores: Record<string, { total: number; count: number }> = {}
@@ -258,12 +278,19 @@ export default function TestDetailPage({ params }: { params: { id: string } }) {
             Test run {params.id.slice(0, 8)}...
           </p>
         </div>
-        <Badge
-          variant={status === 'complete' ? 'default' : status === 'failed' ? 'destructive' : 'secondary'}
-          className={status === 'running' ? 'animate-pulse' : ''}
-        >
-          {status === 'running' ? 'Running' : status === 'complete' ? 'Complete' : 'Failed'}
-        </Badge>
+        <div className="flex items-center gap-2">
+          {status === 'running' && (
+            <Button variant="outline" size="sm" onClick={handleCancel} className="text-xs text-red-600 border-red-200 hover:bg-red-50">
+              Cancel
+            </Button>
+          )}
+          <Badge
+            variant={status === 'complete' ? 'default' : status === 'failed' || status === 'cancelled' ? 'destructive' : 'secondary'}
+            className={status === 'running' ? 'animate-pulse' : ''}
+          >
+            {status === 'running' ? 'Running' : status === 'complete' ? 'Complete' : status === 'cancelled' ? 'Cancelled' : 'Failed'}
+          </Badge>
+        </div>
       </div>
 
       {/* Progress */}
@@ -275,8 +302,11 @@ export default function TestDetailPage({ params }: { params: { id: string } }) {
             </span>
             {status === 'running' && (
               <span className="text-muted-foreground">
-                ~{minutesLeft} minute{minutesLeft !== 1 ? 's' : ''} remaining
+                ~{minutesLeft > 0 ? `${minutesLeft}m ` : ''}{secsLeft}s remaining
               </span>
+            )}
+            {status === 'cancelled' && (
+              <span className="text-red-600">Evaluation cancelled</span>
             )}
           </div>
           <Progress value={progressPercent} className="h-3" />

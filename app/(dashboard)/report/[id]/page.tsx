@@ -211,6 +211,26 @@ export default async function ReportPage({ params }: { params: { id: string } })
               </p>
             </div>
           </div>
+
+          {/* Framework pass/fail indicators */}
+          {testRun.framework_scores && Object.keys(testRun.framework_scores).length > 0 && (
+            <div className="mt-4 pt-4 border-t">
+              <p className="text-xs text-muted-foreground mb-2">Framework Compliance</p>
+              <div className="flex flex-wrap gap-2">
+                {Object.entries(testRun.framework_scores).map(([fwId, fwData]) => {
+                  const fw = fwData as { score: number; passed: boolean }
+                  return (
+                    <div key={fwId} className={`inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs font-medium ${fw.passed ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
+                      <span className={`w-2 h-2 rounded-full ${fw.passed ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                      {fwId}
+                      <span className="font-bold">{fw.score}%</span>
+                      <span className="text-[10px] opacity-70">{fw.passed ? 'PASS' : 'FAIL'}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -323,33 +343,75 @@ export default async function ReportPage({ params }: { params: { id: string } })
                   <TableHead>Dimension</TableHead>
                   <TableHead>Score</TableHead>
                   <TableHead>Severity</TableHead>
-                  <TableHead>Violation</TableHead>
-                  <TableHead>Ideal Response</TableHead>
+                  <TableHead>Finding</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {failedProbes.map((probe) => (
-                  <TableRow key={probe.id}>
-                    <TableCell className="font-medium">{probe.dimension}</TableCell>
-                    <TableCell>
+                  <TableRow key={probe.id} className="group">
+                    <TableCell className="font-medium align-top">
+                      <div>{probe.dimension}</div>
+                      {probe.framework_id && (
+                        <span className="text-[10px] text-muted-foreground">{probe.framework_id}</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="align-top">
                       <Badge className={`${probe.score >= 5 ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-700'}`} variant="secondary">
                         {probe.score}/10
                       </Badge>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="align-top">
                       <Badge variant={severityColor(probe.severity)}>{probe.severity}</Badge>
                     </TableCell>
-                    <TableCell className="max-w-xs">
-                      <p className="text-sm truncate">{probe.violation}</p>
-                      <details className="mt-1">
-                        <summary className="text-xs text-muted-foreground cursor-pointer">Show prompt &amp; response</summary>
-                        <div className="mt-1 space-y-1">
-                          <p className="text-xs p-2 bg-muted rounded whitespace-pre-wrap">{probe.prompt_sent}</p>
-                          <p className="text-xs p-2 bg-muted rounded whitespace-pre-wrap">{probe.response_received}</p>
+                    <TableCell className="max-w-lg">
+                      <p className="text-sm">{probe.violation}</p>
+                      <details className="mt-2">
+                        <summary className="text-xs text-violet-600 cursor-pointer font-medium hover:text-violet-700">
+                          View details &amp; metrics
+                        </summary>
+                        <div className="mt-2 space-y-3 border-t pt-3">
+                          {/* Eval metrics */}
+                          {probe.eval_metrics && (
+                            <div className="flex flex-wrap gap-1.5">
+                              {[
+                                { key: 'accuracy', label: 'ACC' },
+                                { key: 'calibration', label: 'CAL' },
+                                { key: 'bias', label: 'BIAS' },
+                                { key: 'toxicity', label: 'TOX' },
+                                { key: 'fairness', label: 'FAIR' },
+                                { key: 'efficiency', label: 'EFF' },
+                              ].map(({ key, label }) => {
+                                const metrics = probe.eval_metrics as unknown as Record<string, number | null> | null
+                                const val = metrics?.[key]
+                                if (val == null) return null
+                                const pct = Math.round(val * 100)
+                                const c = pct >= 70 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : pct >= 50 ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-red-50 text-red-700 border-red-200'
+                                return (
+                                  <span key={key} className={`inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] font-medium ${c}`}>
+                                    {label}: {pct}%
+                                  </span>
+                                )
+                              })}
+                            </div>
+                          )}
+                          {/* Prompt */}
+                          <div>
+                            <p className="text-[10px] font-medium text-muted-foreground mb-1">Prompt Sent</p>
+                            <p className="text-xs p-2 bg-muted rounded whitespace-pre-wrap leading-relaxed">{probe.prompt_sent}</p>
+                          </div>
+                          {/* Response */}
+                          <div>
+                            <p className="text-[10px] font-medium text-muted-foreground mb-1">Model Response</p>
+                            <p className="text-xs p-2 bg-muted rounded whitespace-pre-wrap leading-relaxed">{probe.response_received}</p>
+                          </div>
+                          {/* Ideal */}
+                          <div>
+                            <p className="text-[10px] font-medium text-muted-foreground mb-1">Ideal Response</p>
+                            <p className="text-xs p-2 bg-emerald-50 rounded text-emerald-800 leading-relaxed">{probe.ideal_response}</p>
+                          </div>
                         </div>
                       </details>
                     </TableCell>
-                    <TableCell className="max-w-xs text-sm">{probe.ideal_response}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
