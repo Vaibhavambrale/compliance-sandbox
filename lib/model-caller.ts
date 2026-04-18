@@ -37,40 +37,6 @@ export async function callUserModel(config: ModelConfig, prompt: string): Promis
   }
 }
 
-async function callHuggingFace(config: ModelConfig, prompt: string): Promise<string> {
-  const res = await fetch(config.apiEndpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${config.apiKey}`,
-      ...config.headers,
-    },
-    body: JSON.stringify({
-      inputs: prompt,
-      parameters: {
-        max_new_tokens: 1024,
-        return_full_text: false,
-      },
-    }),
-  })
-
-  if (!res.ok) {
-    const errBody = await res.text().catch(() => 'Unknown error')
-    throw new Error(`HuggingFace API error (${res.status}): ${errBody.slice(0, 200)}`)
-  }
-
-  const data = await res.json()
-
-  // HF Inference API returns: [{ generated_text: "..." }] or { error: "..." }
-  if (Array.isArray(data) && data[0]?.generated_text) {
-    return data[0].generated_text
-  }
-  if (data?.error) {
-    throw new Error(`HuggingFace error: ${data.error}`)
-  }
-  return typeof data === 'string' ? data : JSON.stringify(data)
-}
-
 async function callOpenAICompatible(config: ModelConfig, prompt: string): Promise<string> {
   const res = await fetch(config.apiEndpoint, {
     method: 'POST',
