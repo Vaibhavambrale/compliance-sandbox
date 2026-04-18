@@ -1,13 +1,31 @@
 import { supabase } from '@/lib/supabase'
+import type { ModelConfig } from '@/lib/model-caller'
 
 export interface StartTestPayload {
+  model_config: {
+    name: string
+    apiEndpoint: string
+    apiKey: string
+    modelId: string
+    apiFormat: 'openai' | 'anthropic' | 'google' | 'custom'
+  }
+  region: string
   use_case: string
-  model: string
   frameworks: string[]
 }
 
 export interface StartTestResponse {
   id: string
+}
+
+export interface EvalMetrics {
+  accuracy: number
+  calibration: number
+  robustness: number | null
+  fairness: number | null
+  bias: number
+  toxicity: number
+  efficiency: number
 }
 
 export interface TestProbe {
@@ -16,20 +34,33 @@ export interface TestProbe {
   dimension: string
   prompt_sent: string
   response_received: string
-  score: number
+  score: number | null
   severity: string
   violation: string
   ideal_response: string
+  framework_id: string | null
+  probe_id: string | null
+  eval_metrics: EvalMetrics | null
+  response_time_ms: number | null
+  token_count: number | null
   created_at: string
 }
 
 export interface TestRun {
   id: string
   model_name: string
+  model_provider: string | null
+  model_endpoint: string | null
+  model_api_format: string | null
   use_case: string
+  region: string | null
   frameworks: string[]
   compliance_score: number | null
+  capability_score: number | null
   overall_score: number | null
+  readiness_tier: string | null
+  framework_scores: Record<string, { score: number; passed: boolean; dimensions?: Record<string, number> }> | null
+  eval_aggregate: EvalMetrics | null
   status: string
   created_at: string
 }
@@ -42,8 +73,8 @@ export async function startTest(payload: StartTestPayload): Promise<StartTestRes
   })
 
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: 'Failed to start test' }))
-    throw new Error(err.error ?? 'Failed to start test')
+    const err = await res.json().catch(() => ({ error: 'Failed to start evaluation' }))
+    throw new Error(err.error ?? 'Failed to start evaluation')
   }
 
   return res.json()
@@ -52,7 +83,7 @@ export async function startTest(payload: StartTestPayload): Promise<StartTestRes
 export async function getTestRun(id: string): Promise<TestRun | null> {
   const { data, error } = await supabase
     .from('test_runs')
-    .select('id, model_name, use_case, frameworks, compliance_score, overall_score, status, created_at')
+    .select('*')
     .eq('id', id)
     .single()
 
@@ -72,8 +103,9 @@ export async function getTestProbes(testRunId: string): Promise<TestProbe[]> {
 
 export async function startTestStream(params: {
   test_run_id: string
-  model: string
+  model_config: ModelConfig
   use_case: string
+  frameworks: string[]
 }): Promise<Response> {
   return fetch('/api/test/run', {
     method: 'POST',

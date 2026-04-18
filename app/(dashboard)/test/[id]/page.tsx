@@ -26,7 +26,6 @@ interface LiveProbe {
   response?: string
 }
 
-const TOTAL_PROBES = 43
 const SECONDS_PER_PROBE = 6 // ~4s delay + API calls
 
 function scoreColor(score: number) {
@@ -57,6 +56,7 @@ export default function TestDetailPage({ params }: { params: { id: string } }) {
   const [savedProbes, setSavedProbes] = useState<TestProbe[]>([])
   const [status, setStatus] = useState<'loading' | 'running' | 'complete' | 'failed'>('loading')
   const [completed, setCompleted] = useState(0)
+  const [totalProbes, setTotalProbes] = useState(50)
   const [complianceScore, setComplianceScore] = useState<number | null>(null)
   const streamStarted = useRef(false)
 
@@ -67,10 +67,19 @@ export default function TestDetailPage({ params }: { params: { id: string } }) {
       setStatus('running')
 
       try {
+        // Get model config from sessionStorage (stored by test wizard)
+        const storedConfig = sessionStorage.getItem('model_config')
+        if (!storedConfig) {
+          setStatus('failed')
+          return
+        }
+        const model_config = JSON.parse(storedConfig)
+
         const res = await startTestStream({
           test_run_id: run.id,
-          model: run.model_name,
+          model_config,
           use_case: run.use_case,
+          frameworks: run.frameworks ?? [],
         })
 
         if (!res.ok) {
@@ -105,6 +114,8 @@ export default function TestDetailPage({ params }: { params: { id: string } }) {
             try {
               const data = JSON.parse(dataLine.slice(6))
 
+              if (data.total) setTotalProbes(data.total)
+
               if (data.type === 'progress') {
                 setProbes((prev) => [
                   {
@@ -113,6 +124,18 @@ export default function TestDetailPage({ params }: { params: { id: string } }) {
                     dimension: data.dimension,
                     score: data.score,
                     severity: data.severity,
+                  },
+                  ...prev,
+                ])
+                setCompleted(data.probe_number)
+              } else if (data.type === 'error_probe') {
+                setProbes((prev) => [
+                  {
+                    probe_number: data.probe_number,
+                    total: data.total,
+                    dimension: data.dimension,
+                    score: 0,
+                    severity: 'error',
                   },
                   ...prev,
                 ])
@@ -148,10 +171,11 @@ export default function TestDetailPage({ params }: { params: { id: string } }) {
 
       if (run.status === 'complete') {
         setStatus('complete')
-        setCompleted(TOTAL_PROBES)
-        setComplianceScore(run.compliance_score)
         const existingProbes = await getTestProbes(run.id)
         setSavedProbes(existingProbes)
+        setTotalProbes(existingProbes.length || 50)
+        setCompleted(existingProbes.length || 50)
+        setComplianceScore(run.compliance_score)
       } else if (run.status === 'running') {
         startStream(run)
       }
@@ -160,8 +184,8 @@ export default function TestDetailPage({ params }: { params: { id: string } }) {
     init()
   }, [params.id])
 
-  const progressPercent = (completed / TOTAL_PROBES) * 100
-  const remaining = Math.max(0, TOTAL_PROBES - completed)
+  const progressPercent = (completed / totalProbes) * 100
+  const remaining = Math.max(0, totalProbes - completed)
   const minutesLeft = Math.ceil((remaining * SECONDS_PER_PROBE) / 60)
 
   // Build dimension scores from either live probes or saved probes
@@ -171,7 +195,7 @@ export default function TestDetailPage({ params }: { params: { id: string } }) {
   for (const p of probeSource) {
     const dim = p.dimension
     if (!dimensionScores[dim]) dimensionScores[dim] = { total: 0, count: 0 }
-    dimensionScores[dim].total += p.score
+    dimensionScores[dim].total += p.score ?? 0
     dimensionScores[dim].count += 1
   }
 
@@ -224,7 +248,7 @@ export default function TestDetailPage({ params }: { params: { id: string } }) {
         <CardContent className="pt-6">
           <div className="flex items-center justify-between text-sm mb-2">
             <span className="font-medium">
-              {completed}/{TOTAL_PROBES} probes completed
+              {completed}/{totalProbes} probes completed
             </span>
             {status === 'running' && (
               <span className="text-muted-foreground">
@@ -310,8 +334,8 @@ export default function TestDetailPage({ params }: { params: { id: string } }) {
                     <span className="text-sm font-medium">
                       #{probe.probe_number} {probe.dimension}
                     </span>
-                    <Badge className={scoreColor(probe.score)} variant="secondary">
-                      {probe.score}/10
+                    <Badge className={scoreColor(probe.score ?? 0)} variant="secondary">
+                      {probe.score ?? '—'}/10
                     </Badge>
                     <Badge variant={severityVariant(probe.severity)}>
                       {probe.severity}
@@ -334,8 +358,8 @@ export default function TestDetailPage({ params }: { params: { id: string } }) {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium">{probe.dimension}</span>
-                    <Badge className={scoreColor(probe.score)} variant="secondary">
-                      {probe.score}/10
+                    <Badge className={scoreColor(probe.score ?? 0)} variant="secondary">
+                      {probe.score ?? '—'}/10
                     </Badge>
                     <Badge variant={severityVariant(probe.severity)}>
                       {probe.severity}

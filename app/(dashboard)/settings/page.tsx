@@ -1,66 +1,44 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Check } from 'lucide-react'
+import { Check, ShieldCheck, Info } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import { getSettings, saveSettings, type ApiKeySettings } from '@/lib/api/settings'
-
-type KeyField = 'gemini' | 'groq' | 'anthropic'
 
 export default function SettingsPage() {
-  const [geminiKey, setGeminiKey] = useState('')
-  const [groqKey, setGroqKey] = useState('')
   const [anthropicKey, setAnthropicKey] = useState('')
-  const [probeCount, setProbeCount] = useState(40)
-  const [probeDelay, setProbeDelay] = useState(4)
-  const [maskedKeys, setMaskedKeys] = useState<ApiKeySettings>({
-    gemini_api_key: '',
-    groq_api_key: '',
-    anthropic_api_key: '',
-  })
-  const [editing, setEditing] = useState<Record<KeyField, boolean>>({
-    gemini: false,
-    groq: false,
-    anthropic: false,
-  })
+  const [maskedKey, setMaskedKey] = useState('')
+  const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [status, setStatus] = useState<'idle' | 'saved' | 'error'>('idle')
 
   useEffect(() => {
-    getSettings()
-      .then((data) => {
-        setMaskedKeys(data)
+    fetch('/api/settings/get')
+      .then(r => r.json())
+      .then(data => {
+        if (data.anthropic_api_key) setMaskedKey(data.anthropic_api_key)
       })
       .catch(() => {})
   }, [])
 
-  function startEdit(field: KeyField) {
-    setEditing((prev) => ({ ...prev, [field]: true }))
-  }
-
   async function handleSave() {
+    if (!anthropicKey) return
     setSaving(true)
     setStatus('idle')
     try {
-      await saveSettings({
-        gemini_api_key: geminiKey,
-        groq_api_key: groqKey,
-        anthropic_api_key: anthropicKey,
+      await fetch('/api/settings/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ anthropic_api_key: anthropicKey }),
       })
       setStatus('saved')
-      // Refresh masked keys from server so UI reflects persisted state
-      const data = await getSettings()
-      setMaskedKeys(data)
-      // Clear raw inputs and return all fields to their saved-display state
-      setGeminiKey('')
-      setGroqKey('')
+      const data = await fetch('/api/settings/get').then(r => r.json())
+      if (data.anthropic_api_key) setMaskedKey(data.anthropic_api_key)
       setAnthropicKey('')
-      setEditing({ gemini: false, groq: false, anthropic: false })
+      setEditing(false)
     } catch {
       setStatus('error')
     } finally {
@@ -69,205 +47,77 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 max-w-2xl">
       <div>
         <h1 className="text-2xl font-bold">Settings</h1>
         <p className="text-muted-foreground mt-1">
-          Configure API keys and test defaults.
+          Configure the scoring engine for compliance evaluations.
         </p>
       </div>
 
-      {/* Section 1 - Model API Keys */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <CardTitle>Google AI Studio</CardTitle>
-            <Badge variant="secondary">Gemini</Badge>
+            <ShieldCheck className="h-5 w-5 text-emerald-600" />
+            <CardTitle>Scoring Engine</CardTitle>
           </div>
           <CardDescription>
-            Get free key at aistudio.google.com
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <div className="flex items-center gap-2">
-            <Label htmlFor="gemini-key">Google AI Studio API Key</Label>
-            {maskedKeys.gemini_api_key && (
-              <Badge className="bg-green-100 text-green-700 gap-1" variant="secondary">
-                <Check className="h-3 w-3" /> Saved
-              </Badge>
-            )}
-          </div>
-          {maskedKeys.gemini_api_key && !editing.gemini ? (
-            <div className="flex items-center gap-2">
-              <Input
-                id="gemini-key"
-                type="text"
-                value={maskedKeys.gemini_api_key}
-                readOnly
-                className="font-mono"
-              />
-              <Button type="button" variant="outline" onClick={() => startEdit('gemini')}>
-                Change
-              </Button>
-            </div>
-          ) : (
-            <Input
-              id="gemini-key"
-              type="password"
-              placeholder="AIza..."
-              value={geminiKey}
-              onChange={(e) => setGeminiKey(e.target.value)}
-            />
-          )}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <CardTitle>Groq</CardTitle>
-            <Badge variant="secondary">Llama 3 / Mixtral</Badge>
-          </div>
-          <CardDescription>
-            Get free key at console.groq.com
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <div className="flex items-center gap-2">
-            <Label htmlFor="groq-key">Groq API Key</Label>
-            {maskedKeys.groq_api_key && (
-              <Badge className="bg-green-100 text-green-700 gap-1" variant="secondary">
-                <Check className="h-3 w-3" /> Saved
-              </Badge>
-            )}
-          </div>
-          {maskedKeys.groq_api_key && !editing.groq ? (
-            <div className="flex items-center gap-2">
-              <Input
-                id="groq-key"
-                type="text"
-                value={maskedKeys.groq_api_key}
-                readOnly
-                className="font-mono"
-              />
-              <Button type="button" variant="outline" onClick={() => startEdit('groq')}>
-                Change
-              </Button>
-            </div>
-          ) : (
-            <Input
-              id="groq-key"
-              type="password"
-              placeholder="gsk_..."
-              value={groqKey}
-              onChange={(e) => setGroqKey(e.target.value)}
-            />
-          )}
-        </CardContent>
-      </Card>
-
-      <Separator />
-
-      {/* Section 2 - Analysis Engine */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <CardTitle>Anthropic</CardTitle>
-            <Badge variant="secondary">Claude (Scoring)</Badge>
-          </div>
-          <CardDescription>
-            Used to score model responses during test runs.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <div className="flex items-center gap-2">
-            <Label htmlFor="anthropic-key">Anthropic API Key</Label>
-            {maskedKeys.anthropic_api_key && (
-              <Badge className="bg-green-100 text-green-700 gap-1" variant="secondary">
-                <Check className="h-3 w-3" /> Saved
-              </Badge>
-            )}
-          </div>
-          {maskedKeys.anthropic_api_key && !editing.anthropic ? (
-            <div className="flex items-center gap-2">
-              <Input
-                id="anthropic-key"
-                type="text"
-                value={maskedKeys.anthropic_api_key}
-                readOnly
-                className="font-mono"
-              />
-              <Button type="button" variant="outline" onClick={() => startEdit('anthropic')}>
-                Change
-              </Button>
-            </div>
-          ) : (
-            <Input
-              id="anthropic-key"
-              type="password"
-              placeholder="sk-ant-..."
-              value={anthropicKey}
-              onChange={(e) => setAnthropicKey(e.target.value)}
-            />
-          )}
-        </CardContent>
-      </Card>
-
-      <Separator />
-
-      {/* Section 3 - Test Defaults */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Test Defaults</CardTitle>
-          <CardDescription>
-            Configure default parameters for new test runs.
+            Claude is used as the evaluation engine to score model responses against compliance criteria. An Anthropic API key is required.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div>
-            <Label htmlFor="probe-count">Default Probe Count</Label>
-            <Input
-              id="probe-count"
-              type="number"
-              min={10}
-              max={80}
-              value={probeCount}
-              onChange={(e) => setProbeCount(Number(e.target.value))}
-              className="mt-1 w-32"
-            />
-            <p className="text-xs text-muted-foreground mt-1">
-              Number of probes per test run (10–80)
-            </p>
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Label htmlFor="anthropic-key">Anthropic API Key</Label>
+              {maskedKey && (
+                <Badge className="bg-green-100 text-green-700 gap-1" variant="secondary">
+                  <Check className="h-3 w-3" /> Configured
+                </Badge>
+              )}
+            </div>
+            {maskedKey && !editing ? (
+              <div className="flex items-center gap-2">
+                <Input id="anthropic-key" type="text" value={maskedKey} readOnly className="font-mono" />
+                <Button type="button" variant="outline" onClick={() => setEditing(true)}>Change</Button>
+              </div>
+            ) : (
+              <Input
+                id="anthropic-key"
+                type="password"
+                placeholder="sk-ant-..."
+                value={anthropicKey}
+                onChange={(e) => setAnthropicKey(e.target.value)}
+                className="font-mono"
+              />
+            )}
           </div>
-          <div>
-            <Label htmlFor="probe-delay">Delay Between Probes (seconds)</Label>
-            <Input
-              id="probe-delay"
-              type="number"
-              min={2}
-              max={10}
-              value={probeDelay}
-              onChange={(e) => setProbeDelay(Number(e.target.value))}
-              className="mt-1 w-32"
-            />
-            <p className="text-xs text-muted-foreground mt-1">
-              Rate limit protection delay (2–10 seconds)
-            </p>
+
+          <div className="flex items-center gap-4">
+            <Button onClick={handleSave} disabled={saving || (!anthropicKey && !editing)}>
+              {saving ? 'Saving...' : 'Save'}
+            </Button>
+            {status === 'saved' && <span className="text-sm text-green-600">Saved successfully.</span>}
+            {status === 'error' && <span className="text-sm text-red-600">Failed to save.</span>}
           </div>
         </CardContent>
       </Card>
 
-      <div className="flex items-center gap-4">
-        <Button onClick={handleSave} disabled={saving}>
-          {saving ? 'Saving…' : 'Save Settings'}
-        </Button>
-        {status === 'saved' && (
-          <span className="text-sm text-green-600">Settings saved successfully.</span>
-        )}
-        {status === 'error' && (
-          <span className="text-sm text-red-600">Failed to save settings.</span>
-        )}
-      </div>
+      <Card className="border-blue-100 bg-blue-50/50">
+        <CardContent className="pt-6">
+          <div className="flex gap-3">
+            <Info className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
+            <div className="space-y-2 text-sm">
+              <p className="font-medium text-blue-900">How the Scoring Engine Works</p>
+              <p className="text-blue-700">
+                When you run a compliance evaluation, each probe prompt is sent to your model. The response is then scored by Claude (Anthropic) on a 0-10 scale across compliance dimensions like Bias, Safety, Privacy, and Transparency.
+              </p>
+              <p className="text-blue-700">
+                Your model&apos;s API key is provided per-evaluation in the test wizard and is never stored permanently. Only the Anthropic key (for scoring) is saved here.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

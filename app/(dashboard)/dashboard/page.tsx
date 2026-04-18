@@ -10,18 +10,13 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
-
-function scoreClass(score: number | null): string {
-  if (score === null) return 'text-muted-foreground'
-  if (score >= 70) return 'text-green-700 bg-green-50 border border-green-200'
-  if (score >= 50) return 'text-amber-700 bg-amber-50 border border-amber-200'
-  return 'text-red-700 bg-red-50 border border-red-200'
-}
+import { tierBadgeClass, scoreColor } from '@/lib/scoring'
 
 function ScoreChip({ score }: { score: number | null }) {
   if (score === null) return <span className="text-muted-foreground">—</span>
+  const bg = score >= 70 ? 'bg-green-50 border-green-200' : score >= 50 ? 'bg-amber-50 border-amber-200' : 'bg-red-50 border-red-200'
   return (
-    <span className={`inline-block rounded px-2 py-0.5 text-sm font-medium ${scoreClass(score)}`}>
+    <span className={`inline-block rounded border px-2 py-0.5 text-sm font-medium ${scoreColor(score)} ${bg}`}>
       {score.toFixed(1)}
     </span>
   )
@@ -29,17 +24,8 @@ function ScoreChip({ score }: { score: number | null }) {
 
 function TierBadge({ tier }: { tier: string | null }) {
   if (!tier) return <span className="text-muted-foreground">—</span>
-
-  const classes: Record<string, string> = {
-    'Deployment Ready': 'bg-green-100 text-green-800 border-green-200',
-    'Conditionally Ready': 'bg-amber-100 text-amber-800 border-amber-200',
-    'Not Ready': 'bg-orange-100 text-orange-800 border-orange-200',
-    'Do Not Deploy': 'bg-red-100 text-red-800 border-red-200',
-  }
-
-  const cls = classes[tier] ?? 'bg-secondary text-secondary-foreground border-border'
   return (
-    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${cls}`}>
+    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${tierBadgeClass(tier)}`}>
       {tier}
     </span>
   )
@@ -125,7 +111,7 @@ export default async function DashboardPage() {
           title="Avg Compliance Score"
           value={
             stats.avgComplianceScore !== null ? (
-              <span className={`text-2xl font-bold rounded px-1 ${scoreClass(stats.avgComplianceScore)}`}>
+              <span className={`text-2xl font-bold rounded px-1 ${scoreColor(stats.avgComplianceScore)}`}>
                 {stats.avgComplianceScore.toFixed(1)}
               </span>
             ) : (
@@ -138,7 +124,7 @@ export default async function DashboardPage() {
           title="Avg Capability Score"
           value={
             stats.avgCapabilityScore !== null ? (
-              <span className={`text-2xl font-bold rounded px-1 ${scoreClass(stats.avgCapabilityScore)}`}>
+              <span className={`text-2xl font-bold rounded px-1 ${scoreColor(stats.avgCapabilityScore)}`}>
                 {stats.avgCapabilityScore.toFixed(1)}
               </span>
             ) : (

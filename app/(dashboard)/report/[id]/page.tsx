@@ -14,13 +14,9 @@ import {
 import { Separator } from '@/components/ui/separator'
 import ReportCharts from './charts'
 import PrintButton from './print-button'
+import { computeReadinessTier } from '@/lib/scoring'
 
-function readinessTier(score: number) {
-  if (score >= 85) return { label: 'Deployment Ready', color: 'bg-green-600', text: 'text-green-700', banner: 'bg-green-50 border-green-200' }
-  if (score >= 70) return { label: 'Conditionally Ready', color: 'bg-amber-500', text: 'text-amber-700', banner: 'bg-amber-50 border-amber-200' }
-  if (score >= 50) return { label: 'Not Ready', color: 'bg-orange-500', text: 'text-orange-700', banner: 'bg-orange-50 border-orange-200' }
-  return { label: 'Do Not Deploy', color: 'bg-red-600', text: 'text-red-700', banner: 'bg-red-50 border-red-200' }
-}
+const readinessTier = computeReadinessTier
 
 function severityColor(severity: string) {
   switch (severity) {
@@ -381,9 +377,9 @@ export default async function ReportPage({ params }: { params: { id: string } })
                         {b.passed ? 'Pass' : 'Fail'}
                       </Badge>
                     </div>
-                    <p className="text-xs text-muted-foreground mb-1">{b.source_institution}</p>
+                    <p className="text-xs text-muted-foreground mb-1">{b.benchmark_category ?? 'General'}</p>
                     <p className="text-sm">
-                      {b.score}% vs {b.baseline_model} baseline {b.baseline_score}%
+                      {b.raw_score != null ? `${Math.round(b.raw_score * 100)}%` : '—'} vs published baseline {b.published_baseline != null ? `${Math.round(b.published_baseline * 100)}%` : '—'}
                     </p>
                     <div className="mt-2 h-2 rounded-full bg-muted overflow-hidden">
                       <div
@@ -450,7 +446,7 @@ export default async function ReportPage({ params }: { params: { id: string } })
                   <div key={b.id} className="border rounded-lg p-4 space-y-2">
                     <h4 className="font-medium">{b.benchmark_name}</h4>
                     <p className="text-sm text-muted-foreground">
-                      Scored {b.score}% against {b.baseline_score}% baseline
+                      Scored {b.raw_score != null ? `${Math.round(b.raw_score * 100)}%` : '—'} against {b.published_baseline != null ? `${Math.round(b.published_baseline * 100)}%` : '—'} baseline
                     </p>
                     <div className="grid grid-cols-3 gap-2 text-sm">
                       <div className="p-2 bg-muted rounded">

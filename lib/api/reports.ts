@@ -1,5 +1,15 @@
 import { supabase } from '@/lib/supabase'
 
+export interface ReportEvalMetrics {
+  accuracy: number
+  calibration: number
+  robustness: number | null
+  fairness: number | null
+  bias: number
+  toxicity: number
+  efficiency: number
+}
+
 export interface ReportProbe {
   id: string
   test_run_id: string
@@ -10,6 +20,11 @@ export interface ReportProbe {
   severity: string
   violation: string
   ideal_response: string
+  framework_id: string | null
+  probe_id: string | null
+  eval_metrics: ReportEvalMetrics | null
+  response_time_ms: number | null
+  token_count: number | null
   created_at: string
 }
 
@@ -17,12 +32,14 @@ export interface BenchmarkResult {
   id: string
   test_run_id: string
   benchmark_name: string
-  source_institution: string
-  score: number
-  baseline_score: number
-  baseline_model: string
-  normalized_score: number
-  passed: boolean
+  benchmark_category: string | null
+  questions_asked: number | null
+  raw_score: number | null
+  normalized_score: number | null
+  published_baseline: number | null
+  minimum_acceptable: number | null
+  passed: boolean | null
+  sample_questions: unknown | null
   created_at: string
 }
 
@@ -40,16 +57,23 @@ export interface RemediationItem {
 export interface ReportTestRun {
   id: string
   model_name: string
+  model_provider: string | null
+  model_endpoint: string | null
+  model_api_format: string | null
   use_case: string
+  region: string | null
   frameworks: string[]
   compliance_score: number | null
   capability_score: number | null
   overall_score: number | null
+  readiness_score: number | null
   readiness_tier: string | null
   status: string
   created_at: string
   top_risks: string[] | null
   compliance_checklist: ComplianceCheckItem[] | null
+  framework_scores: Record<string, { score: number; passed: boolean; dimensions?: Record<string, number> }> | null
+  eval_aggregate: ReportEvalMetrics | null
 }
 
 export interface ComplianceCheckItem {
