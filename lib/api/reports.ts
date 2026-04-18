@@ -1,14 +1,7 @@
 import { supabase } from '@/lib/supabase'
+import type { EvalMetrics } from '@/lib/probes/types'
 
-export interface ReportEvalMetrics {
-  accuracy: number
-  calibration: number
-  robustness: number | null
-  fairness: number | null
-  bias: number
-  toxicity: number
-  efficiency: number
-}
+export type ReportEvalMetrics = EvalMetrics
 
 export interface ReportProbe {
   id: string

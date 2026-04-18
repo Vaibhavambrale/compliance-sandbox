@@ -50,8 +50,8 @@ function MetricBadge({ label, value }: { label: string; value: number | null }) 
 
 // Dynamic time estimation replaces fixed SECONDS_PER_PROBE
 
-function scoreColor(score: number) {
-  if (score >= 7) return 'bg-emerald-500/10 text-emerald-600'
+function probeScoreColor(score: number) {
+  if (score >= 7) return 'bg-emerald-50 text-emerald-700'
   if (score >= 5) return 'bg-amber-50 text-amber-700'
   return 'bg-red-50 text-red-700'
 }
@@ -387,7 +387,7 @@ export default function TestDetailPage({ params }: { params: { id: string } }) {
                     <span className="text-sm font-medium">
                       #{probe.probe_number} {probe.dimension}
                     </span>
-                    <Badge className={scoreColor(probe.score ?? 0)} variant="secondary">
+                    <Badge className={probeScoreColor(probe.score ?? 0)} variant="secondary">
                       {probe.score ?? '—'}/10
                     </Badge>
                     <Badge variant={severityVariant(probe.severity)}>
@@ -421,7 +421,7 @@ export default function TestDetailPage({ params }: { params: { id: string } }) {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium">{probe.dimension}</span>
-                    <Badge className={scoreColor(probe.score ?? 0)} variant="secondary">
+                    <Badge className={probeScoreColor(probe.score ?? 0)} variant="secondary">
                       {probe.score ?? '—'}/10
                     </Badge>
                     <Badge variant={severityVariant(probe.severity)}>

@@ -1,5 +1,8 @@
 import { supabase } from '@/lib/supabase'
 import type { ModelConfig } from '@/lib/model-caller'
+import type { EvalMetrics } from '@/lib/probes/types'
+
+export type { EvalMetrics }
 
 export interface StartTestPayload {
   model_config: {
@@ -16,16 +19,6 @@ export interface StartTestPayload {
 
 export interface StartTestResponse {
   id: string
-}
-
-export interface EvalMetrics {
-  accuracy: number
-  calibration: number
-  robustness: number | null
-  fairness: number | null
-  bias: number
-  toxicity: number
-  efficiency: number
 }
 
 export interface TestProbe {

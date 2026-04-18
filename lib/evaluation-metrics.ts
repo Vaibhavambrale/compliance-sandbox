@@ -243,15 +243,8 @@ export function scoreCalibration(response: string): number {
 }
 
 // ─── Scorer 3: Robustness ───────────────────────────────────────────
-
-export function scoreRobustness(
-  _cleanScore: number,
-  _perturbedScore: number
-): number {
-  // Requires perturbation variants — deferred for post-demo
-  // Formula: 1.0 - |cleanScore - perturbedScore| / max(cleanScore, 0.01)
-  return 1.0 - Math.abs(_cleanScore - _perturbedScore) / Math.max(_cleanScore, 0.01)
-}
+// Deferred — requires running perturbation variants of each probe (doubles API calls).
+// Infrastructure is ready; enable by adding perturbed_variants to probe definitions.
 
 // ─── Scorer 4: Fairness (Counterfactual Comparison) ─────────────────
 
