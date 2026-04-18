@@ -70,7 +70,7 @@ export default function SettingsPage() {
             <div className="flex items-center gap-2">
               <Label htmlFor="anthropic-key">Anthropic API Key</Label>
               {maskedKey && (
-                <Badge className="bg-green-100 text-green-700 gap-1" variant="secondary">
+                <Badge className="bg-emerald-500/10 text-emerald-400 gap-1" variant="secondary">
                   <Check className="h-3 w-3" /> Configured
                 </Badge>
               )}
@@ -96,23 +96,23 @@ export default function SettingsPage() {
             <Button onClick={handleSave} disabled={saving || (!anthropicKey && !editing)}>
               {saving ? 'Saving...' : 'Save'}
             </Button>
-            {status === 'saved' && <span className="text-sm text-green-600">Saved successfully.</span>}
-            {status === 'error' && <span className="text-sm text-red-600">Failed to save.</span>}
+            {status === 'saved' && <span className="text-sm text-emerald-400">Saved successfully.</span>}
+            {status === 'error' && <span className="text-sm text-red-400">Failed to save.</span>}
           </div>
         </CardContent>
       </Card>
 
-      <Card className="border-blue-100 bg-blue-50/50">
+      <Card className="border-slate-700 bg-slate-800/50">
         <CardContent className="pt-6">
           <div className="flex gap-3">
-            <Info className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
+            <Info className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
             <div className="space-y-2 text-sm">
-              <p className="font-medium text-blue-900">How the Scoring Engine Works</p>
-              <p className="text-blue-700">
-                When you run a compliance evaluation, each probe prompt is sent to your model. The response is then scored by Claude (Anthropic) on a 0-10 scale across compliance dimensions like Bias, Safety, Privacy, and Transparency.
+              <p className="font-medium text-slate-100">How the Scoring Engine Works</p>
+              <p className="text-slate-300">
+                When you run a compliance evaluation, each probe prompt is sent to your model. Responses are scored programmatically using 7 deterministic metrics (accuracy, calibration, fairness, bias, toxicity, efficiency). Claude is used only to generate the narrative report.
               </p>
-              <p className="text-blue-700">
-                Your model&apos;s API key is provided per-evaluation in the test wizard and is never stored permanently. Only the Anthropic key (for scoring) is saved here.
+              <p className="text-slate-300">
+                Your model&apos;s API key is provided per-evaluation in the test wizard and is never stored permanently. Only the Anthropic key (for report generation) is saved here.
               </p>
             </div>
           </div>

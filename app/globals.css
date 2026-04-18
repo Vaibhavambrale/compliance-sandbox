@@ -3,15 +3,26 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #0f172a;
+  --foreground: #f8fafc;
+  --card: #1e293b;
+  --card-foreground: #f8fafc;
+  --popover: #0f172a;
+  --popover-foreground: #f8fafc;
+  --primary: #10b981;
+  --primary-foreground: #ffffff;
+  --secondary: #1e293b;
+  --secondary-foreground: #e2e8f0;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --accent: #1e293b;
+  --accent-foreground: #f8fafc;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #1e293b;
+  --input: #334155;
+  --ring: #10b981;
+  --radius: 0.75rem;
 }
 
 body {
@@ -27,40 +38,23 @@ body {
 }
 
 @media print {
-  /* Hide non-report elements */
   aside, nav, .no-print { display: none !important; }
   button { display: none !important; }
-
-  /* Layout reset */
   main { padding: 0 !important; margin: 0 !important; max-width: 100% !important; }
   body { background: white !important; color: black !important; font-size: 11pt !important; }
-
-  /* Reset all containers */
   .space-y-8 > * { break-inside: avoid; }
-  [class*="Card"] { border: 1px solid #ddd !important; box-shadow: none !important; }
-
-  /* Ensure charts and tables print */
+  [class*="Card"] { border: 1px solid #ddd !important; box-shadow: none !important; background: white !important; color: black !important; }
   .recharts-wrapper { page-break-inside: avoid; }
-  table { font-size: 10pt; }
-
-  /* Score colors for print */
-  .text-green-600, .text-green-700 { color: #15803d !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .text-amber-600, .text-amber-700 { color: #b45309 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .text-red-600, .text-red-700 { color: #b91c1c !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-
-  /* Badge backgrounds for print */
-  .bg-green-100, .bg-green-50, .bg-green-600 { background-color: #dcfce7 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .bg-amber-100, .bg-amber-50 { background-color: #fef3c7 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .bg-red-100, .bg-red-50 { background-color: #fee2e2 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-
-  /* Progress bars for print */
-  [class*="bg-green-500"] { background-color: #22c55e !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  table { font-size: 10pt; color: black !important; }
+  .text-green-600, .text-green-700, .text-emerald-400 { color: #15803d !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .text-amber-600, .text-amber-700, .text-amber-400 { color: #b45309 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .text-red-600, .text-red-700, .text-red-400 { color: #b91c1c !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  [class*="bg-emerald"], [class*="bg-green"] { background-color: #dcfce7 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  [class*="bg-amber"] { background-color: #fef3c7 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  [class*="bg-red"] { background-color: #fee2e2 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  [class*="bg-green-500"], [class*="bg-emerald-500"] { background-color: #22c55e !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   [class*="bg-amber-500"] { background-color: #f59e0b !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   [class*="bg-red-500"] { background-color: #ef4444 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-
-  /* Page margins */
   @page { margin: 1.5cm; }
-
-  /* Force page breaks between major sections */
   .print-break-before { page-break-before: always; }
 }

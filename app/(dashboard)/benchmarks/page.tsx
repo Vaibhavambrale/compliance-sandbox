@@ -29,9 +29,9 @@ interface BenchmarkRow {
 }
 
 function scoreColor(score: number) {
-  if (score >= 70) return 'text-green-600'
-  if (score >= 50) return 'text-amber-600'
-  return 'text-red-600'
+  if (score >= 70) return 'text-emerald-400'
+  if (score >= 50) return 'text-amber-400'
+  return 'text-red-400'
 }
 
 export default async function BenchmarksPage() {
@@ -103,7 +103,7 @@ export default async function BenchmarksPage() {
                       {row.published_baseline != null ? `${Math.round(row.published_baseline * 100)}%` : '—'}
                     </TableCell>
                     <TableCell>
-                      <Badge variant={row.passed ? 'default' : 'destructive'} className={row.passed ? 'bg-green-600' : ''}>
+                      <Badge variant={row.passed ? 'default' : 'destructive'} className={row.passed ? 'bg-emerald-600' : ''}>
                         {row.passed ? 'Pass' : 'Fail'}
                       </Badge>
                     </TableCell>

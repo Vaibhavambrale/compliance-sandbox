@@ -31,26 +31,26 @@ function severityColor(severity: string) {
 
 function statusBadge(status: string) {
   switch (status) {
-    case 'Pass': return 'bg-green-100 text-green-700'
-    case 'Fail': return 'bg-red-100 text-red-700'
-    case 'Partial': return 'bg-amber-100 text-amber-700'
-    default: return 'bg-gray-100 text-gray-700'
+    case 'Pass': return 'bg-emerald-500/10 text-emerald-400'
+    case 'Fail': return 'bg-red-500/10 text-red-400'
+    case 'Partial': return 'bg-amber-500/10 text-amber-400'
+    default: return 'bg-slate-700/50 text-slate-400'
   }
 }
 
 function difficultyColor(d: string) {
   switch (d) {
-    case 'Easy': return 'bg-green-100 text-green-700'
-    case 'Medium': return 'bg-amber-100 text-amber-700'
-    case 'Hard': return 'bg-red-100 text-red-700'
-    default: return 'bg-gray-100 text-gray-700'
+    case 'Easy': return 'bg-emerald-500/10 text-emerald-400'
+    case 'Medium': return 'bg-amber-500/10 text-amber-400'
+    case 'Hard': return 'bg-red-500/10 text-red-400'
+    default: return 'bg-slate-700/50 text-slate-400'
   }
 }
 
 function scoreColor(score: number) {
-  if (score >= 70) return 'text-green-600'
-  if (score >= 50) return 'text-amber-600'
-  return 'text-red-600'
+  if (score >= 70) return 'text-emerald-400'
+  if (score >= 50) return 'text-amber-400'
+  return 'text-red-400'
 }
 
 export default async function ReportPage({ params }: { params: { id: string } }) {
@@ -61,7 +61,7 @@ export default async function ReportPage({ params }: { params: { id: string } })
       <div className="space-y-4">
         <h1 className="text-2xl font-bold">Report Not Found</h1>
         <p className="text-muted-foreground">This report could not be loaded.</p>
-        <Link href="/dashboard" className="text-blue-600 hover:underline">
+        <Link href="/dashboard" className="text-emerald-400 hover:underline">
           Back to Dashboard
         </Link>
       </div>
@@ -229,7 +229,7 @@ export default async function ReportPage({ params }: { params: { id: string } })
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <span className="font-semibold text-sm">{fwId}</span>
-                      <Badge variant={fw.passed ? 'default' : 'destructive'} className={fw.passed ? 'bg-green-600' : ''}>
+                      <Badge variant={fw.passed ? 'default' : 'destructive'} className={fw.passed ? 'bg-emerald-600' : ''}>
                         {fw.passed ? 'PASS' : 'FAIL'}
                       </Badge>
                     </div>
@@ -245,7 +245,7 @@ export default async function ReportPage({ params }: { params: { id: string } })
                           </div>
                           <div className="h-1.5 rounded-full bg-muted overflow-hidden">
                             <div
-                              className={`h-full rounded-full ${(dimScore as number) >= 70 ? 'bg-green-500' : (dimScore as number) >= 50 ? 'bg-amber-500' : 'bg-red-500'}`}
+                              className={`h-full rounded-full ${(dimScore as number) >= 70 ? 'bg-emerald-500' : (dimScore as number) >= 50 ? 'bg-amber-500' : 'bg-red-500'}`}
                               style={{ width: `${dimScore}%` }}
                             />
                           </div>
@@ -332,7 +332,7 @@ export default async function ReportPage({ params }: { params: { id: string } })
                   <TableRow key={probe.id}>
                     <TableCell className="font-medium">{probe.dimension}</TableCell>
                     <TableCell>
-                      <Badge className={`${probe.score >= 5 ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'}`} variant="secondary">
+                      <Badge className={`${probe.score >= 5 ? 'bg-amber-500/10 text-amber-400' : 'bg-red-500/10 text-red-400'}`} variant="secondary">
                         {probe.score}/10
                       </Badge>
                     </TableCell>
@@ -476,7 +476,7 @@ export default async function ReportPage({ params }: { params: { id: string } })
                     </p>
                     <div className="mt-2 h-2 rounded-full bg-muted overflow-hidden">
                       <div
-                        className={`h-full rounded-full ${b.passed ? 'bg-green-500' : 'bg-red-500'}`}
+                        className={`h-full rounded-full ${b.passed ? 'bg-emerald-500' : 'bg-red-500'}`}
                         style={{ width: `${b.normalized_score}%` }}
                       />
                     </div>

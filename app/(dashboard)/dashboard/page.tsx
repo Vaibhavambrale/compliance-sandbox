@@ -14,7 +14,7 @@ import { tierBadgeClass, scoreColor } from '@/lib/scoring'
 
 function ScoreChip({ score }: { score: number | null }) {
   if (score === null) return <span className="text-muted-foreground">—</span>
-  const bg = score >= 70 ? 'bg-green-50 border-green-200' : score >= 50 ? 'bg-amber-50 border-amber-200' : 'bg-red-50 border-red-200'
+  const bg = score >= 70 ? 'bg-emerald-500/10 border-emerald-500/20' : score >= 50 ? 'bg-amber-500/10 border-amber-500/20' : 'bg-red-500/10 border-red-500/20'
   return (
     <span className={`inline-block rounded border px-2 py-0.5 text-sm font-medium ${scoreColor(score)} ${bg}`}>
       {score.toFixed(1)}

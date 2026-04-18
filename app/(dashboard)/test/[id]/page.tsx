@@ -40,7 +40,7 @@ interface LiveProbe {
 function MetricBadge({ label, value }: { label: string; value: number | null }) {
   if (value === null) return null
   const pct = Math.round(value * 100)
-  const color = pct >= 70 ? 'bg-green-50 text-green-700 border-green-200' : pct >= 50 ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-red-50 text-red-700 border-red-200'
+  const color = pct >= 70 ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : pct >= 50 ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'
   return (
     <span className={`inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] font-medium ${color}`} title={label}>
       {label[0].toUpperCase()}: {pct}%
@@ -51,9 +51,9 @@ function MetricBadge({ label, value }: { label: string; value: number | null }) 
 const SECONDS_PER_PROBE = 6 // ~4s delay + API calls
 
 function scoreColor(score: number) {
-  if (score >= 7) return 'bg-green-100 text-green-700'
-  if (score >= 5) return 'bg-amber-100 text-amber-700'
-  return 'bg-red-100 text-red-700'
+  if (score >= 7) return 'bg-emerald-500/10 text-emerald-400'
+  if (score >= 5) return 'bg-amber-500/10 text-amber-400'
+  return 'bg-red-500/10 text-red-400'
 }
 
 function severityVariant(severity: string) {
@@ -67,9 +67,9 @@ function severityVariant(severity: string) {
 }
 
 function complianceColor(score: number) {
-  if (score >= 70) return 'text-green-600'
-  if (score >= 50) return 'text-amber-600'
-  return 'text-red-600'
+  if (score >= 70) return 'text-emerald-400'
+  if (score >= 50) return 'text-amber-400'
+  return 'text-red-400'
 }
 
 export default function TestDetailPage({ params }: { params: { id: string } }) {
@@ -315,7 +315,7 @@ export default function TestDetailPage({ params }: { params: { id: string } }) {
                       <div className="h-2 rounded-full bg-muted overflow-hidden">
                         <div
                           className={`h-full rounded-full transition-all ${
-                            pct >= 70 ? 'bg-green-500' : pct >= 50 ? 'bg-amber-500' : 'bg-red-500'
+                            pct >= 70 ? 'bg-emerald-500' : pct >= 50 ? 'bg-amber-500' : 'bg-red-500'
                           }`}
                           style={{ width: `${pct}%` }}
                         />
@@ -426,7 +426,7 @@ export default function TestDetailPage({ params }: { params: { id: string } }) {
                   </p>
                 </details>
                 {probe.violation && (
-                  <p className="text-xs text-red-600">Violation: {probe.violation}</p>
+                  <p className="text-xs text-red-400">Violation: {probe.violation}</p>
                 )}
               </CardContent>
             </Card>
