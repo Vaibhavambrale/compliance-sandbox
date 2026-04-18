@@ -13,6 +13,11 @@ export interface ModelConfig {
 }
 
 export async function callUserModel(config: ModelConfig, prompt: string): Promise<string> {
+  // Detect HuggingFace Inference API from endpoint
+  if (config.apiEndpoint.includes('api-inference.huggingface.co')) {
+    return callHuggingFace(config, prompt)
+  }
+
   switch (config.apiFormat) {
     case 'openai':
       return callOpenAICompatible(config, prompt)
@@ -21,10 +26,44 @@ export async function callUserModel(config: ModelConfig, prompt: string): Promis
     case 'google':
       return callGoogle(config, prompt)
     case 'custom':
-      return callOpenAICompatible(config, prompt) // custom uses OpenAI format with custom headers
+      return callOpenAICompatible(config, prompt)
     default:
       throw new Error(`Unsupported API format: ${config.apiFormat}`)
   }
+}
+
+async function callHuggingFace(config: ModelConfig, prompt: string): Promise<string> {
+  const res = await fetch(config.apiEndpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${config.apiKey}`,
+      ...config.headers,
+    },
+    body: JSON.stringify({
+      inputs: prompt,
+      parameters: {
+        max_new_tokens: 1024,
+        return_full_text: false,
+      },
+    }),
+  })
+
+  if (!res.ok) {
+    const errBody = await res.text().catch(() => 'Unknown error')
+    throw new Error(`HuggingFace API error (${res.status}): ${errBody.slice(0, 200)}`)
+  }
+
+  const data = await res.json()
+
+  // HF Inference API returns: [{ generated_text: "..." }] or { error: "..." }
+  if (Array.isArray(data) && data[0]?.generated_text) {
+    return data[0].generated_text
+  }
+  if (data?.error) {
+    throw new Error(`HuggingFace error: ${data.error}`)
+  }
+  return typeof data === 'string' ? data : JSON.stringify(data)
 }
 
 async function callOpenAICompatible(config: ModelConfig, prompt: string): Promise<string> {
