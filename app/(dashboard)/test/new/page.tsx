@@ -141,7 +141,7 @@ function NewTestPageInner() {
                 i === step
                   ? 'bg-emerald-600 text-white'
                   : i < step
-                    ? 'bg-emerald-500/20 text-emerald-400 cursor-pointer'
+                    ? 'bg-violet-100 text-violet-700 cursor-pointer'
                     : 'bg-muted text-muted-foreground'
               }`}
             >
@@ -290,7 +290,7 @@ function NewTestPageInner() {
                 >
                   <CardHeader className="pb-2">
                     <div className="flex items-center gap-3">
-                      <div className={`rounded-lg p-2 ${isSelected ? 'bg-emerald-500/20 text-emerald-400' : 'bg-muted text-muted-foreground'}`}>
+                      <div className={`rounded-lg p-2 ${isSelected ? 'bg-violet-100 text-violet-700' : 'bg-muted text-muted-foreground'}`}>
                         <Icon className="h-5 w-5" />
                       </div>
                       <CardTitle className="text-sm">{uc.title}</CardTitle>
@@ -320,7 +320,7 @@ function NewTestPageInner() {
           </div>
 
           {/* Test summary */}
-          <Card className="border-emerald-500/20 bg-emerald-500/10">
+          <Card className="border-violet-200 bg-violet-50">
             <CardContent className="pt-6">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                 <div>
@@ -370,7 +370,7 @@ function NewTestPageInner() {
             </CardContent>
           </Card>
 
-          {error && <p className="text-sm text-red-400">{error}</p>}
+          {error && <p className="text-sm text-red-600">{error}</p>}
 
           <div className="flex justify-between">
             <Button variant="outline" onClick={() => setStep(2)}>

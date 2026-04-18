@@ -104,7 +104,7 @@ export default function BenchmarkButton({
 
   if (status === 'complete') {
     return (
-      <Badge variant="default" className="bg-emerald-600">
+      <Badge variant="default" className="bg-emerald-500">
         Benchmarks Complete — Reloading...
       </Badge>
     )

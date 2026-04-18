@@ -31,26 +31,26 @@ function severityColor(severity: string) {
 
 function statusBadge(status: string) {
   switch (status) {
-    case 'Pass': return 'bg-emerald-500/10 text-emerald-400'
-    case 'Fail': return 'bg-red-500/10 text-red-400'
-    case 'Partial': return 'bg-amber-500/10 text-amber-400'
-    default: return 'bg-slate-700/50 text-slate-400'
+    case 'Pass': return 'bg-emerald-50 text-emerald-700'
+    case 'Fail': return 'bg-red-50 text-red-700'
+    case 'Partial': return 'bg-amber-50 text-amber-700'
+    default: return 'bg-gray-50 text-gray-600'
   }
 }
 
 function difficultyColor(d: string) {
   switch (d) {
-    case 'Easy': return 'bg-emerald-500/10 text-emerald-400'
-    case 'Medium': return 'bg-amber-500/10 text-amber-400'
-    case 'Hard': return 'bg-red-500/10 text-red-400'
-    default: return 'bg-slate-700/50 text-slate-400'
+    case 'Easy': return 'bg-emerald-50 text-emerald-700'
+    case 'Medium': return 'bg-amber-50 text-amber-700'
+    case 'Hard': return 'bg-red-50 text-red-700'
+    default: return 'bg-gray-50 text-gray-600'
   }
 }
 
 function scoreColor(score: number) {
-  if (score >= 70) return 'text-emerald-400'
-  if (score >= 50) return 'text-amber-400'
-  return 'text-red-400'
+  if (score >= 70) return 'text-emerald-600'
+  if (score >= 50) return 'text-amber-600'
+  return 'text-red-600'
 }
 
 export default async function ReportPage({ params }: { params: { id: string } }) {
@@ -61,7 +61,7 @@ export default async function ReportPage({ params }: { params: { id: string } })
       <div className="space-y-4">
         <h1 className="text-2xl font-bold">Report Not Found</h1>
         <p className="text-muted-foreground">This report could not be loaded.</p>
-        <Link href="/dashboard" className="text-emerald-400 hover:underline">
+        <Link href="/dashboard" className="text-violet-600 hover:underline">
           Back to Dashboard
         </Link>
       </div>
@@ -332,7 +332,7 @@ export default async function ReportPage({ params }: { params: { id: string } })
                   <TableRow key={probe.id}>
                     <TableCell className="font-medium">{probe.dimension}</TableCell>
                     <TableCell>
-                      <Badge className={`${probe.score >= 5 ? 'bg-amber-500/10 text-amber-400' : 'bg-red-500/10 text-red-400'}`} variant="secondary">
+                      <Badge className={`${probe.score >= 5 ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-700'}`} variant="secondary">
                         {probe.score}/10
                       </Badge>
                     </TableCell>

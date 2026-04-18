@@ -13,19 +13,19 @@ import { Button } from '@/components/ui/button'
 import { tierBadgeClass, scoreColor } from '@/lib/scoring'
 
 function ScoreChip({ score }: { score: number | null }) {
-  if (score === null) return <span className="text-muted-foreground">—</span>
-  const bg = score >= 70 ? 'bg-emerald-500/10 border-emerald-500/20' : score >= 50 ? 'bg-amber-500/10 border-amber-500/20' : 'bg-red-500/10 border-red-500/20'
+  if (score === null) return <span className="text-gray-400">—</span>
+  const bg = score >= 70 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : score >= 50 ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-red-50 text-red-700 border-red-200'
   return (
-    <span className={`inline-block rounded border px-2 py-0.5 text-sm font-medium ${scoreColor(score)} ${bg}`}>
+    <span className={`inline-block rounded-md border px-2 py-0.5 text-xs font-semibold ${bg}`}>
       {score.toFixed(1)}
     </span>
   )
 }
 
 function TierBadge({ tier }: { tier: string | null }) {
-  if (!tier) return <span className="text-muted-foreground">—</span>
+  if (!tier) return <span className="text-gray-400">—</span>
   return (
-    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${tierBadgeClass(tier)}`}>
+    <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium ${tierBadgeClass(tier)}`}>
       {tier}
     </span>
   )
@@ -35,19 +35,19 @@ function StatCard({
   title,
   value,
   subtitle,
+  accent,
 }: {
   title: string
   value: React.ReactNode
   subtitle?: string
+  accent?: string
 }) {
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
-        {subtitle && <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>}
+    <Card className="border border-gray-200 shadow-sm bg-white">
+      <CardContent className="pt-5 pb-4">
+        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">{title}</p>
+        <div className={`text-2xl font-bold ${accent ?? 'text-gray-900'}`}>{value}</div>
+        {subtitle && <p className="text-[11px] text-gray-400 mt-1">{subtitle}</p>}
       </CardContent>
     </Card>
   )
@@ -56,9 +56,9 @@ function StatCard({
 function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 text-center">
-      <div className="rounded-full bg-muted p-6">
+      <div className="rounded-xl bg-violet-50 p-5">
         <svg
-          className="w-10 h-10 text-muted-foreground"
+          className="w-8 h-8 text-violet-500"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -72,12 +72,12 @@ function EmptyState() {
         </svg>
       </div>
       <div>
-        <h2 className="text-xl font-semibold mb-1">No tests run yet</h2>
-        <p className="text-muted-foreground max-w-sm">
-          Start by selecting a use case and running your first AI compliance test.
+        <h2 className="text-lg font-semibold text-gray-900 mb-1">No evaluations yet</h2>
+        <p className="text-sm text-gray-500 max-w-sm">
+          Start by configuring your model and running your first AI compliance evaluation.
         </p>
       </div>
-      <Button asChild>
+      <Button asChild className="bg-violet-600 hover:bg-violet-700 text-white shadow-sm">
         <Link href="/test/new">Run your first evaluation</Link>
       </Button>
     </div>
@@ -92,15 +92,14 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Dashboard</h1>
-          <p className="text-xs text-muted-foreground mt-1">
-            Programmatic multi-metric evaluation &middot; 7 deterministic scoring metrics
-          </p>
+          <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Reports</p>
+          <h1 className="text-xl font-bold text-gray-900">Compliance report</h1>
         </div>
-        <Button asChild variant="outline">
+        <Button asChild className="bg-violet-600 hover:bg-violet-700 text-white shadow-sm text-xs h-8 px-3">
           <Link href="/test/new">+ New Evaluation</Link>
         </Button>
       </div>
@@ -108,75 +107,69 @@ export default async function DashboardPage() {
       {/* Stat widgets */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard
-          title="Total Tests Run"
+          title="Total Tests"
           value={stats.totalTests}
           subtitle="All time"
         />
         <StatCard
-          title="Avg Compliance Score"
+          title="Compliance Score"
           value={
             stats.avgComplianceScore !== null ? (
-              <span className={`text-2xl font-bold rounded px-1 ${scoreColor(stats.avgComplianceScore)}`}>
-                {stats.avgComplianceScore.toFixed(1)}
+              <span className={scoreColor(stats.avgComplianceScore)}>
+                {stats.avgComplianceScore.toFixed(1)}%
               </span>
-            ) : (
-              <span className="text-muted-foreground">—</span>
-            )
+            ) : '—'
           }
-          subtitle="Completed runs only"
+          subtitle="Average across runs"
         />
         <StatCard
-          title="Avg Capability Score"
+          title="Capability Score"
           value={
             stats.avgCapabilityScore !== null ? (
-              <span className={`text-2xl font-bold rounded px-1 ${scoreColor(stats.avgCapabilityScore)}`}>
-                {stats.avgCapabilityScore.toFixed(1)}
+              <span className={scoreColor(stats.avgCapabilityScore)}>
+                {stats.avgCapabilityScore.toFixed(1)}%
               </span>
-            ) : (
-              <span className="text-muted-foreground">—</span>
-            )
+            ) : '—'
           }
-          subtitle="Completed runs only"
+          subtitle="Benchmark performance"
         />
         <StatCard
-          title="Top Failure Dimension"
+          title="Top Failure"
           value={
             stats.topFailureDimension ? (
-              <span className="text-lg font-semibold capitalize">{stats.topFailureDimension}</span>
-            ) : (
-              <span className="text-muted-foreground text-lg">—</span>
-            )
+              <span className="text-base font-semibold text-red-600 capitalize">{stats.topFailureDimension}</span>
+            ) : '—'
           }
-          subtitle="Most probes scored below 5"
+          subtitle="Most probes below threshold"
         />
       </div>
 
       {/* Recent runs table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Test Runs</CardTitle>
+      <Card className="border border-gray-200 shadow-sm bg-white">
+        <CardHeader className="pb-0">
+          <CardTitle className="text-sm font-semibold text-gray-900">Recent Evaluations</CardTitle>
         </CardHeader>
-        <CardContent className="p-0">
+        <CardContent className="p-0 pt-3">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Model</TableHead>
-                <TableHead>Use Case</TableHead>
-                <TableHead className="text-right">Compliance</TableHead>
-                <TableHead className="text-right">Capability</TableHead>
-                <TableHead>Readiness Tier</TableHead>
-                <TableHead>Date</TableHead>
+              <TableRow className="border-gray-100 hover:bg-transparent">
+                <TableHead className="text-xs font-medium text-gray-500">Model</TableHead>
+                <TableHead className="text-xs font-medium text-gray-500">Use Case</TableHead>
+                <TableHead className="text-xs font-medium text-gray-500 text-right">Compliance</TableHead>
+                <TableHead className="text-xs font-medium text-gray-500 text-right">Capability</TableHead>
+                <TableHead className="text-xs font-medium text-gray-500">Status</TableHead>
+                <TableHead className="text-xs font-medium text-gray-500">Date</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {stats.recentRuns.map((run: TestRun) => (
-                <TableRow key={run.id} className="cursor-pointer hover:bg-muted/50">
+                <TableRow key={run.id} className="border-gray-50 hover:bg-gray-50/50 cursor-pointer">
                   <TableCell>
-                    <Link href={`/report/${run.id}`} className="font-medium hover:underline block">
+                    <Link href={`/report/${run.id}`} className="text-sm font-medium text-gray-900 hover:text-violet-600 transition-colors">
                       {run.model_name}
                     </Link>
                   </TableCell>
-                  <TableCell className="text-muted-foreground">{run.use_case}</TableCell>
+                  <TableCell className="text-sm text-gray-500">{run.use_case}</TableCell>
                   <TableCell className="text-right">
                     <ScoreChip score={run.compliance_score} />
                   </TableCell>
@@ -186,7 +179,7 @@ export default async function DashboardPage() {
                   <TableCell>
                     <TierBadge tier={run.readiness_tier} />
                   </TableCell>
-                  <TableCell className="text-muted-foreground text-sm">
+                  <TableCell className="text-xs text-gray-400">
                     {new Date(run.created_at).toLocaleDateString()}
                   </TableCell>
                 </TableRow>
@@ -196,16 +189,16 @@ export default async function DashboardPage() {
         </CardContent>
       </Card>
 
-      {/* Quick start card */}
-      <Card>
-        <CardContent className="flex items-center justify-between p-6">
+      {/* Quick start */}
+      <Card className="border border-gray-200 shadow-sm bg-white">
+        <CardContent className="flex items-center justify-between py-4">
           <div>
-            <p className="font-semibold">Ready to test a new model?</p>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              Choose a use case to begin a new compliance test run.
+            <p className="text-sm font-semibold text-gray-900">Ready to test a new model?</p>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Configure your model API and run a compliance evaluation.
             </p>
           </div>
-          <Button asChild>
+          <Button asChild className="bg-violet-600 hover:bg-violet-700 text-white shadow-sm text-xs h-8">
             <Link href="/test/new">Start Evaluation</Link>
           </Button>
         </CardContent>

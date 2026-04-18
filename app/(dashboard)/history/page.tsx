@@ -14,19 +14,19 @@ import {
 import HistoryFilters from './filters'
 
 function scoreColor(score: number | null) {
-  if (score === null) return 'bg-slate-700/50 text-slate-400'
-  if (score >= 70) return 'bg-emerald-500/10 text-emerald-400'
-  if (score >= 50) return 'bg-amber-500/10 text-amber-400'
-  return 'bg-red-500/10 text-red-400'
+  if (score === null) return 'bg-gray-50 text-gray-600'
+  if (score >= 70) return 'bg-emerald-50 text-emerald-700'
+  if (score >= 50) return 'bg-amber-50 text-amber-700'
+  return 'bg-red-50 text-red-700'
 }
 
 function tierVariant(tier: string | null) {
   switch (tier) {
-    case 'Deployment Ready': return 'bg-emerald-500/10 text-emerald-400'
-    case 'Conditionally Ready': return 'bg-amber-500/10 text-amber-400'
-    case 'Not Ready': return 'bg-orange-500/10 text-orange-400'
-    case 'Do Not Deploy': return 'bg-red-500/10 text-red-400'
-    default: return 'bg-slate-700/50 text-slate-400'
+    case 'Deployment Ready': return 'bg-emerald-50 text-emerald-700'
+    case 'Conditionally Ready': return 'bg-amber-50 text-amber-700'
+    case 'Not Ready': return 'bg-orange-50 text-orange-700'
+    case 'Do Not Deploy': return 'bg-red-50 text-red-700'
+    default: return 'bg-gray-50 text-gray-600'
   }
 }
 

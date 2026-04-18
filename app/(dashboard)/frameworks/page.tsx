@@ -99,12 +99,12 @@ export default function FrameworksPage() {
                       <td className="py-2">Prohibited</td>
                     </tr>
                     <tr className="border-b">
-                      <td className="py-2 pr-4"><Badge className="bg-orange-500/10 text-orange-400" variant="secondary">High</Badge></td>
+                      <td className="py-2 pr-4"><Badge className="bg-orange-50 text-orange-700" variant="secondary">High</Badge></td>
                       <td className="py-2 pr-4">Healthcare, credit scoring, employment</td>
                       <td className="py-2">Conformity assessment, human oversight, transparency</td>
                     </tr>
                     <tr className="border-b">
-                      <td className="py-2 pr-4"><Badge className="bg-amber-500/10 text-amber-400" variant="secondary">Limited</Badge></td>
+                      <td className="py-2 pr-4"><Badge className="bg-amber-50 text-amber-700" variant="secondary">Limited</Badge></td>
                       <td className="py-2 pr-4">Chatbots, emotion detection</td>
                       <td className="py-2">Transparency obligations</td>
                     </tr>
@@ -166,13 +166,13 @@ export default function FrameworksPage() {
           <AccordionTrigger className="hover:no-underline">
             <div className="flex items-center gap-3">
               <span className="font-semibold">MEITY AI Advisory March 2024</span>
-              <Badge className="bg-amber-500/10 text-amber-400" variant="secondary">Emerging (Advisory Only)</Badge>
+              <Badge className="bg-amber-50 text-amber-700" variant="secondary">Emerging (Advisory Only)</Badge>
             </div>
           </AccordionTrigger>
           <AccordionContent>
             <div className="space-y-4 pt-2">
-              <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-3">
-                <p className="text-sm text-amber-300">
+              <div className="rounded-lg border border-amber-200 bg-amber-50 p-3">
+                <p className="text-sm text-amber-800">
                   This is advisory guidance from the Ministry of Electronics and Information Technology, not enforceable law yet.
                   Compliance is recommended but not legally mandated.
                 </p>

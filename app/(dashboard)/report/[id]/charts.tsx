@@ -31,14 +31,15 @@ function barFill(score: number) {
   return '#ef4444'
 }
 
-const DARK_TOOLTIP = {
-  backgroundColor: '#1e293b',
-  border: '1px solid #334155',
-  color: '#f8fafc',
+const TOOLTIP_STYLE = {
+  backgroundColor: '#ffffff',
+  border: '1px solid #e5e7eb',
+  color: '#111827',
   borderRadius: '8px',
+  boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
 }
 
-const DARK_TICK = { fill: '#94a3b8' }
+const TICK_STYLE = { fill: '#6b7280' }
 
 export default function ReportCharts({
   radarData,
@@ -57,9 +58,9 @@ export default function ReportCharts({
         <h4 className="text-sm font-medium mb-2">Radar Overview</h4>
         <ResponsiveContainer width="100%" height={300}>
           <RadarChart data={radarData}>
-            <PolarGrid stroke="#334155" />
-            <PolarAngleAxis dataKey="dimension" tick={{ fontSize: 11, ...DARK_TICK }} />
-            <Tooltip contentStyle={DARK_TOOLTIP} />
+            <PolarGrid stroke="#e5e7eb" />
+            <PolarAngleAxis dataKey="dimension" tick={{ fontSize: 11, ...TICK_STYLE }} />
+            <Tooltip contentStyle={TOOLTIP_STYLE} />
             <Radar
               name="Score"
               dataKey="score"
@@ -75,9 +76,9 @@ export default function ReportCharts({
         <h4 className="text-sm font-medium mb-2">Scores by Dimension (worst to best)</h4>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={barData} layout="vertical" margin={{ left: 120 }}>
-            <XAxis type="number" domain={[0, 100]} tick={DARK_TICK} axisLine={{ stroke: '#334155' }} />
-            <YAxis type="category" dataKey="dimension" tick={{ fontSize: 12, ...DARK_TICK }} width={110} axisLine={{ stroke: '#334155' }} />
-            <Tooltip contentStyle={DARK_TOOLTIP} cursor={{ fill: 'rgba(148, 163, 184, 0.1)' }} />
+            <XAxis type="number" domain={[0, 100]} tick={TICK_STYLE} axisLine={{ stroke: '#e5e7eb' }} />
+            <YAxis type="category" dataKey="dimension" tick={{ fontSize: 12, ...TICK_STYLE }} width={110} axisLine={{ stroke: '#e5e7eb' }} />
+            <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: 'rgba(148, 163, 184, 0.1)' }} />
             <Bar dataKey="score" radius={[0, 4, 4, 0]}>
               {barData.map((entry, index) => (
                 <Cell key={index} fill={barFill(entry.score)} />

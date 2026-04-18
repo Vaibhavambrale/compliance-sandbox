@@ -29,9 +29,9 @@ interface BenchmarkRow {
 }
 
 function scoreColor(score: number) {
-  if (score >= 70) return 'text-emerald-400'
-  if (score >= 50) return 'text-amber-400'
-  return 'text-red-400'
+  if (score >= 70) return 'text-emerald-600'
+  if (score >= 50) return 'text-amber-600'
+  return 'text-red-600'
 }
 
 export default async function BenchmarksPage() {
