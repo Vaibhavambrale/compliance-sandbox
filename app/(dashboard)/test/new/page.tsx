@@ -18,7 +18,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { startTest } from '@/lib/api/tests'
-import { REGIONS, FRAMEWORKS, getFrameworksForRegion } from '@/lib/frameworks'
+import { REGIONS, getFrameworksForRegion } from '@/lib/frameworks'
 import { getProbeCount, detectScenarios, getScenarioDetails } from '@/lib/probes'
 import { detectFromInput, getProviderStyle } from '@/lib/model-detector'
 import type { DetectedModel } from '@/lib/model-detector'
@@ -467,11 +467,14 @@ function NewTestPageInner() {
               const isSelected = selectedRegion === region.id
               const regionFrameworks = getFrameworksForRegion(region.id)
               return (
-                <Card key={region.id} className={`cursor-pointer transition-all hover:shadow-md ${isSelected ? 'border-violet-500 ring-2 ring-violet-500/20' : 'border-gray-200 hover:border-gray-300'}`} onClick={() => handleRegionSelect(region.id)}>
+                <Card key={region.id} className={`cursor-pointer transition-all hover:shadow-md ${isSelected ? 'border-violet-500 ring-2 ring-violet-500/20 bg-violet-50/50' : 'border-gray-200 hover:border-gray-300'}`} onClick={() => handleRegionSelect(region.id)}>
                   <CardHeader className="pb-2">
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">{region.flag}</span>
-                      <CardTitle className="text-base">{region.name}</CardTitle>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">{region.flag}</span>
+                        <CardTitle className="text-base">{region.name}</CardTitle>
+                      </div>
+                      {isSelected && <CheckCircle2 size={20} className="text-violet-600" />}
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -566,14 +569,17 @@ function NewTestPageInner() {
             </CardContent>
           </Card>
 
-          {/* Frameworks */}
+          {/* Frameworks — only show region-specific ones */}
           <Card className="border-gray-200">
             <CardHeader>
-              <CardTitle className="text-base">Compliance Frameworks</CardTitle>
-              <CardDescription>Select regulatory frameworks to evaluate against.</CardDescription>
+              <CardTitle className="text-base">Applicable Compliance Frameworks</CardTitle>
+              <CardDescription>
+                These frameworks apply to your selected region ({REGIONS.find(r => r.id === selectedRegion)?.name ?? 'Global'}).
+                All are pre-selected for comprehensive evaluation.
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              {FRAMEWORKS.map(fw => (
+              {getFrameworksForRegion(selectedRegion ?? 'global').map(fw => (
                 <label key={fw.id} className="flex items-center gap-3 cursor-pointer">
                   <Checkbox checked={selectedFrameworks.includes(fw.id)} onCheckedChange={() => toggleFramework(fw.id)} />
                   <div className="flex-1">
@@ -582,6 +588,9 @@ function NewTestPageInner() {
                       <Badge variant="secondary" className="text-[10px]">{fw.region}</Badge>
                       <Badge variant={fw.status === 'established' ? 'default' : 'secondary'} className="text-[10px]">{fw.status}</Badge>
                     </div>
+                    <p className="text-[11px] text-gray-400 mt-1">
+                      {fw.requirements?.length ?? 0} testable requirements &middot; Pass threshold: {fw.passThreshold}%
+                    </p>
                   </div>
                 </label>
               ))}

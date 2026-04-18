@@ -73,6 +73,9 @@ export interface ComplianceCheckItem {
   framework: string
   requirement: string
   status: 'Pass' | 'Fail' | 'Partial'
+  description?: string
+  score_pct?: number
+  evidence?: string
 }
 
 export interface ReportData {

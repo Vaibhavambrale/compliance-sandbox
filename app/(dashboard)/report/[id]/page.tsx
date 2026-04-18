@@ -463,35 +463,53 @@ export default async function ReportPage({ params }: { params: { id: string } })
       {/* SECTION 6 - Compliance Checklist */}
       <Card>
         <CardHeader>
-          <CardTitle>Compliance Checklist</CardTitle>
-          <CardDescription>Requirements by regulatory framework</CardDescription>
+          <CardTitle>Regulatory Compliance Assessment</CardTitle>
+          <CardDescription>Per-requirement pass/fail analysis by framework — assessed by Claude</CardDescription>
         </CardHeader>
         <CardContent>
           {Object.keys(checklistByFramework).length > 0 ? (
-            <div className="space-y-6">
+            <div className="space-y-8">
               {Object.entries(checklistByFramework).map(([framework, items]) => (
                 <div key={framework}>
-                  <h4 className="font-medium mb-2">{framework}</h4>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Requirement</TableHead>
-                        <TableHead className="w-24">Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {items.map((item, i) => (
-                        <TableRow key={i}>
-                          <TableCell className="text-sm">{item.requirement}</TableCell>
-                          <TableCell>
-                            <Badge className={statusBadge(item.status)} variant="secondary">
-                              {item.status}
-                            </Badge>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                  <h4 className="font-semibold text-gray-900 mb-3">{framework}</h4>
+                  <div className="space-y-2">
+                    {items.map((item, i) => {
+                      const pct = item.score_pct
+                      const evidence = item.evidence
+                      const desc = item.description
+                      return (
+                        <div key={i} className="border rounded-lg p-3">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="text-sm font-medium text-gray-900">{item.requirement}</span>
+                                <Badge className={statusBadge(item.status)} variant="secondary">
+                                  {item.status}
+                                </Badge>
+                                {pct != null && (
+                                  <span className={`text-xs font-semibold ${pct >= 70 ? 'text-emerald-600' : pct >= 40 ? 'text-amber-600' : 'text-red-600'}`}>
+                                    {pct}%
+                                  </span>
+                                )}
+                              </div>
+                              {desc && <p className="text-xs text-gray-500 mb-1">{desc}</p>}
+                              {evidence && <p className="text-xs text-gray-400 italic">{evidence}</p>}
+                            </div>
+                            {pct != null && (
+                              <div className="w-16 shrink-0">
+                                <div className="h-1.5 rounded-full bg-gray-100 overflow-hidden">
+                                  <div
+                                    className={`h-full rounded-full ${pct >= 70 ? 'bg-emerald-500' : pct >= 40 ? 'bg-amber-500' : 'bg-red-500'}`}
+                                    style={{ width: `${pct}%` }}
+                                  />
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
               ))}
             </div>
