@@ -58,7 +58,7 @@ export default function SettingsPage() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <ShieldCheck className="h-5 w-5 text-emerald-600" />
+            <ShieldCheck className="h-5 w-5 text-violet-600" />
             <CardTitle>Scoring Engine</CardTitle>
           </div>
           <CardDescription>
@@ -105,7 +105,7 @@ export default function SettingsPage() {
       <Card className="border-violet-100 bg-violet-50/50">
         <CardContent className="pt-6">
           <div className="flex gap-3">
-            <Info className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
+            <Info className="h-5 w-5 text-violet-600 shrink-0 mt-0.5" />
             <div className="space-y-2 text-sm">
               <p className="font-medium text-violet-900">How the Scoring Engine Works</p>
               <p className="text-violet-700">
