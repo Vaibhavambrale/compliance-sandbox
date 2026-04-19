@@ -139,100 +139,77 @@ export default async function ReportPage({ params }: { params: { id: string } })
       <PrintButton />
 
       {/* SECTION 1 - Model Identity Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-xl">Model Identity Card</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+      <div className={`rounded-xl border-2 ${tier.banner} overflow-hidden`}>
+        <div className="bg-white p-6">
+          <div className="flex items-start justify-between mb-5">
             <div>
-              <p className="text-muted-foreground">Model</p>
-              <p className="font-medium">{testRun.model_name}</p>
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-1">Compliance Evaluation Report</p>
+              <h2 className="text-xl font-bold text-gray-900">{testRun.model_name}</h2>
+              <p className="text-sm text-gray-500 mt-1 line-clamp-1 max-w-md">{testRun.use_case}</p>
             </div>
-            <div>
-              <p className="text-muted-foreground">Use Case</p>
-              <p className="font-medium">{testRun.use_case}</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground">Date Tested</p>
-              <p className="font-medium">{testDate}</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground">Total Probes</p>
-              <p className="font-medium">{probes.length}</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground">Frameworks Tested</p>
-              <div className="flex flex-wrap gap-1 mt-1">
-                {(testRun.frameworks ?? []).map((f: string) => (
-                  <Badge key={f} variant="secondary" className="text-xs">
-                    {f}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* SECTION 2 - Executive Summary */}
-      <Card className={`border ${tier.banner}`}>
-        <CardContent className="pt-6">
-          <div className="text-center mb-6">
-            <p className="text-sm text-muted-foreground mb-1">Overall Readiness Score</p>
-            <p className={`text-7xl font-bold ${tier.text}`}>{overallScore}</p>
-            <Badge className={`${tier.color} text-white mt-2 text-sm px-3 py-1`}>
-              {tier.label}
-            </Badge>
-          </div>
-
-          {topRisks.length > 0 && (
-            <div className="mb-6">
-              <h3 className="font-semibold mb-2">Top Risks</h3>
-              <ul className="list-disc list-inside space-y-1 text-sm">
-                {topRisks.map((risk: string, i: number) => (
-                  <li key={i}>{risk}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="text-center p-4 rounded-lg bg-background">
-              <p className="text-sm text-muted-foreground">Compliance Score</p>
-              <p className={`text-3xl font-bold ${scoreColor(complianceScore)}`}>
-                {complianceScore}%
+            <div className={`px-4 py-2 rounded-lg text-center ${tier.banner}`}>
+              <p className="text-4xl font-black tracking-tight" style={{ lineHeight: 1 }}>
+                <span className={tier.text}>{overallScore}</span>
               </p>
+              <p className={`text-[10px] font-bold uppercase tracking-wider mt-1 ${tier.text}`}>{tier.label}</p>
             </div>
-            <div className="text-center p-4 rounded-lg bg-background">
-              <p className="text-sm text-muted-foreground">Capability Score</p>
-              <p className={`text-3xl font-bold ${capabilityScore ? scoreColor(capabilityScore) : 'text-muted-foreground'}`}>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div className="bg-gray-50 rounded-lg p-3">
+              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Tested On</p>
+              <p className="font-semibold text-gray-900 mt-1">{testDate}</p>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-3">
+              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Probes Run</p>
+              <p className="font-semibold text-gray-900 mt-1">{probes.length}</p>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-3">
+              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Compliance</p>
+              <p className={`font-bold mt-1 ${scoreColor(complianceScore)}`}>{complianceScore}%</p>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-3">
+              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Capability</p>
+              <p className={`font-bold mt-1 ${capabilityScore ? scoreColor(capabilityScore) : 'text-gray-400'}`}>
                 {capabilityScore ? `${capabilityScore}%` : 'N/A'}
               </p>
             </div>
           </div>
+        </div>
 
-          {/* Framework pass/fail indicators */}
-          {testRun.framework_scores && Object.keys(testRun.framework_scores).length > 0 && (
-            <div className="mt-4 pt-4 border-t">
-              <p className="text-xs text-muted-foreground mb-2">Framework Compliance</p>
-              <div className="flex flex-wrap gap-2">
-                {Object.entries(testRun.framework_scores).map(([fwId, fwData]) => {
-                  const fw = fwData as { score: number; passed: boolean }
-                  return (
-                    <div key={fwId} className={`inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs font-medium ${fw.passed ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
-                      <span className={`w-2 h-2 rounded-full ${fw.passed ? 'bg-emerald-500' : 'bg-red-500'}`} />
-                      {fwId}
-                      <span className="font-bold">{fw.score}%</span>
-                      <span className="text-[10px] opacity-70">{fw.passed ? 'PASS' : 'FAIL'}</span>
-                    </div>
-                  )
-                })}
+        {/* Framework pass/fail strip */}
+        {testRun.framework_scores && Object.keys(testRun.framework_scores).length > 0 && (
+          <div className="bg-gray-50 border-t px-6 py-3 flex items-center gap-3 flex-wrap">
+            <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mr-2">Frameworks:</span>
+            {Object.entries(testRun.framework_scores).map(([fwId, fwData]) => {
+              const fw = fwData as { score: number; passed: boolean }
+              return (
+                <div key={fwId} className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[11px] font-semibold ${fw.passed ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${fw.passed ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                  {fwId} — {fw.score}%
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* SECTION 2 - Top Risks */}
+      {topRisks.length > 0 && (
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <div className="px-6 pt-5 pb-2">
+            <h3 className="text-sm font-bold text-gray-900">Top Risks Identified</h3>
+            <p className="text-[11px] text-gray-400">Critical compliance concerns — assessed by Claude</p>
+          </div>
+          <div className="px-6 pb-5 space-y-2">
+            {topRisks.map((risk: string, i: number) => (
+              <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-red-50/50 border border-red-100">
+                <span className="w-5 h-5 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">{i + 1}</span>
+                <p className="text-sm text-gray-700 leading-relaxed">{risk}</p>
               </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* SECTION 2.5 - Per-Framework Compliance Scores */}
       {testRun.framework_scores && Object.keys(testRun.framework_scores).length > 0 && (
