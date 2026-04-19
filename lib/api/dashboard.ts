@@ -21,6 +21,7 @@ export type DashboardStats = {
 }
 
 export async function getDashboardStats(): Promise<DashboardStats> {
+  try {
   const [
     { count: totalTests },
     { data: completeRuns },
@@ -67,5 +68,15 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     avgCapabilityScore,
     topFailureDimension,
     recentRuns: (recentRuns ?? []) as TestRun[],
+  }
+  } catch {
+    // Supabase may be paused (free tier) or unreachable
+    return {
+      totalTests: 0,
+      avgComplianceScore: null,
+      avgCapabilityScore: null,
+      topFailureDimension: null,
+      recentRuns: [],
+    }
   }
 }

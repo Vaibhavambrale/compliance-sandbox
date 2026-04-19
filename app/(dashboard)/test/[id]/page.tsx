@@ -95,7 +95,17 @@ export default function TestDetailPage({ params }: { params: { id: string } }) {
         // Get model config from sessionStorage (stored by test wizard)
         const storedConfig = sessionStorage.getItem('model_config')
         if (!storedConfig) {
-          setStatus('failed')
+          // No model config — can't stream. Show completed results if test already ran.
+          const existingProbes = await getTestProbes(run.id)
+          if (existingProbes.length > 0) {
+            setSavedProbes(existingProbes)
+            setTotalProbes(existingProbes.length)
+            setCompleted(existingProbes.length)
+            setComplianceScore(run.compliance_score)
+            setStatus('complete')
+          } else {
+            setStatus('failed')
+          }
           return
         }
         const model_config = JSON.parse(storedConfig)

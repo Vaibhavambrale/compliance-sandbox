@@ -29,9 +29,9 @@ export async function POST(req: NextRequest) {
 
     if (!res.ok) {
       if (res.status === 404) {
-        return NextResponse.json({ error: `Model "${modelId}" not found on HuggingFace` })
+        return NextResponse.json({ error: `Model "${modelId}" not found on HuggingFace` }, { status: 404 })
       }
-      return NextResponse.json({ error: `HuggingFace API error (${res.status})` })
+      return NextResponse.json({ error: `HuggingFace API error (${res.status})` }, { status: 502 })
     }
 
     const data = await res.json()
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         error: `Model "${modelId}" has no free inference providers available. Try a different model.`,
         modelName: data.id,
-      })
+      }, { status: 404 })
     }
 
     // Prefer certain providers (faster/more reliable free tier)

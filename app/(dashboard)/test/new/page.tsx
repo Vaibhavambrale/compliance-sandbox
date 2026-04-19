@@ -209,7 +209,10 @@ function NewTestPageInner() {
     : 0
   const estimatedMinutes = Math.ceil((probeCount * 6) / 60)
 
-  const canProceedStep1 = validated
+  // Must have validated connection. For HF, must also have resolved model.
+  const canProceedStep1 = validated && (
+    detected?.provider !== 'huggingface' || hfResolved !== null
+  )
 
   async function handleRunTest() {
     const config = getModelConfig()
@@ -222,13 +225,14 @@ function NewTestPageInner() {
     setError(null)
 
     try {
-      sessionStorage.setItem('model_config', JSON.stringify(config))
       const { id } = await startTest({
         model_config: config,
         region: selectedRegion || 'global',
         use_case: useCaseDescription,
         frameworks: selectedFrameworks,
       })
+      // Store model config AFTER successful API call (not before)
+      sessionStorage.setItem('model_config', JSON.stringify(config))
       router.push(`/test/${id}`)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to start evaluation')
