@@ -12,19 +12,19 @@ test.describe('Sidebar Navigation — all links work correctly', () => {
     await expect(page).toHaveURL(/dashboard/)
   })
 
-  test('Home link navigates to /dashboard', async ({ page }) => {
+  test('Dashboard link navigates to /dashboard', async ({ page }) => {
     await page.goto('/settings')
-    await page.locator('aside').getByRole('link', { name: 'Home' }).click()
+    await page.locator('aside').getByRole('link', { name: 'Dashboard' }).click()
     await expect(page).toHaveURL(/dashboard/)
   })
 
-  test('Tests link navigates to /test/new', async ({ page }) => {
+  test('New Evaluation link navigates to /test/new', async ({ page }) => {
     await page.goto('/dashboard')
-    await page.locator('aside').getByRole('link', { name: 'Tests' }).click()
+    await page.locator('aside').getByRole('link', { name: 'New Evaluation' }).click()
     await expect(page).toHaveURL(/test\/new/)
   })
 
-  test('Compliance link navigates to /frameworks', async ({ page }) => {
+  test('Frameworks link navigates to /frameworks', async ({ page }) => {
     await page.goto('/dashboard')
     await page.locator('aside a[href="/frameworks"]').click()
     await expect(page).toHaveURL(/frameworks/)
@@ -50,7 +50,8 @@ test.describe('Sidebar Navigation — all links work correctly', () => {
 
   test('active page has violet highlight in sidebar', async ({ page }) => {
     await page.goto('/dashboard')
-    const homeLink = page.locator('aside').getByRole('link', { name: 'Home' })
-    await expect(homeLink).toHaveClass(/violet/)
+    // Use the nav link (not the brand logo) — it's the second /dashboard link
+    const dashLink = page.locator('aside nav a[href="/dashboard"]')
+    await expect(dashLink).toHaveClass(/violet/)
   })
 })
