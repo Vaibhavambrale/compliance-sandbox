@@ -46,11 +46,19 @@ function NewTestPageInner() {
   const [advEndpoint, setAdvEndpoint] = useState('')
   const [advApiKey, setAdvApiKey] = useState('')
   const [advFormat, setAdvFormat] = useState<'openai' | 'anthropic' | 'google' | 'custom'>('openai')
-  // For HuggingFace — need model name + resolved provider endpoint
+  // For HuggingFace — whoami + source toggle + live search + resolved provider
   const [hfModelName, setHfModelName] = useState('')
   const [hfResolved, setHfResolved] = useState<{ endpoint: string; providerId: string; provider: string } | null>(null)
   const [hfResolving, setHfResolving] = useState(false)
   const [hfError, setHfError] = useState<string | null>(null)
+  const [hfUser, setHfUser] = useState<{ username: string } | null>(null)
+  const [hfUserError, setHfUserError] = useState<string | null>(null)
+  const [hfSource, setHfSource] = useState<'mine' | 'public'>('public')
+  const [hfSearchQuery, setHfSearchQuery] = useState('')
+  interface HfSearchResult { id: string; likes: number; available: boolean; firstProvider: string | null }
+  const [hfSearchResults, setHfSearchResults] = useState<HfSearchResult[]>([])
+  const [hfSearchLoading, setHfSearchLoading] = useState(false)
+  const [hfShowDropdown, setHfShowDropdown] = useState(false)
 
   // Validation
   const [validating, setValidating] = useState(false)
@@ -102,32 +110,86 @@ function NewTestPageInner() {
     }
   }, [useCaseDescription])
 
-  // Resolve HuggingFace model to correct provider endpoint
-  async function resolveHFModel() {
-    if (!hfModelName.trim() || !smartInput.trim()) return
-    setHfResolving(true)
-    setHfError(null)
-    setHfResolved(null)
-    try {
-      const res = await fetch('/api/model/hf-resolve', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ modelId: hfModelName, apiKey: smartInput }),
-      })
-      const data = await res.json()
-      if (data.resolved) {
-        setHfResolved({ endpoint: data.endpoint, providerId: data.providerId, provider: data.provider })
-        setModelId(data.providerId)
-        setDisplayName(data.modelName)
-      } else {
-        setHfError(data.error || 'Could not resolve model')
+  // Auto-validate HF token (whoami) when detected as HF provider
+  useEffect(() => {
+    setHfUser(null)
+    setHfUserError(null)
+    setHfSearchResults([])
+    if (detected?.provider !== 'huggingface' || !detected.detected) return
+
+    const token = smartInput.trim()
+    if (!token) return
+
+    let cancelled = false
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch('/api/model/hf-whoami', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ apiKey: token }),
+        })
+        const data = await res.json()
+        if (cancelled) return
+        if (data.valid) {
+          setHfUser({ username: data.username })
+          setHfUserError(null)
+        } else {
+          setHfUser(null)
+          setHfUserError(data.error || 'Token validation failed')
+        }
+      } catch {
+        if (!cancelled) {
+          setHfUserError('Could not reach HuggingFace')
+        }
       }
-    } catch {
-      setHfError('Network error resolving model')
-    } finally {
-      setHfResolving(false)
+    }, 400)
+
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
     }
-  }
+  }, [smartInput, detected])
+
+  // Live search HF models (debounced 300ms)
+  useEffect(() => {
+    if (!hfUser || detected?.provider !== 'huggingface') return
+
+    // For "mine" source, fetch once (list user's repo)
+    // For "public" source, only fetch when query has content
+    if (hfSource === 'public' && !hfSearchQuery.trim()) {
+      setHfSearchResults([])
+      return
+    }
+
+    let cancelled = false
+    setHfSearchLoading(true)
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch('/api/model/hf-search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            apiKey: smartInput,
+            query: hfSearchQuery,
+            source: hfSource,
+          }),
+        })
+        const data = await res.json()
+        if (!cancelled) {
+          setHfSearchResults(data.models ?? [])
+        }
+      } catch {
+        // silent fail — keep existing results
+      } finally {
+        if (!cancelled) setHfSearchLoading(false)
+      }
+    }, 300)
+
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
+    }
+  }, [hfSearchQuery, hfSource, hfUser, smartInput, detected])
 
   // Build the final model config for API calls
   function getModelConfig() {
@@ -308,47 +370,182 @@ function NewTestPageInner() {
             </div>
           )}
 
-          {/* HuggingFace: model name input + provider resolution */}
+          {/* HuggingFace: whoami + source toggle + live search */}
           {detected?.provider === 'huggingface' && (
             <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="hf-model" className="text-sm">HuggingFace Model Name</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="hf-model"
-                    placeholder="e.g., meta-llama/Llama-3.1-8B-Instruct"
-                    value={hfModelName}
-                    onChange={(e) => { setHfModelName(e.target.value); setHfResolved(null); setValidated(false) }}
-                    className="text-sm font-mono"
-                  />
-                  <Button
-                    onClick={resolveHFModel}
-                    disabled={!hfModelName.trim() || hfResolving}
-                    variant="outline"
-                    size="sm"
-                    className="shrink-0"
-                  >
-                    {hfResolving ? <><Loader2 size={14} className="mr-1 animate-spin" /> Resolving...</> : 'Find Model'}
-                  </Button>
+              {/* Whoami status */}
+              {hfUser && (
+                <div className="flex items-center gap-2 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">
+                  <CheckCircle2 size={15} />
+                  <span>Signed in as <span className="font-semibold">@{hfUser.username}</span></span>
                 </div>
-                <p className="text-[11px] text-gray-400">Enter the full model path from huggingface.co (e.g., org/model-name)</p>
-              </div>
-
-              {hfResolved && (
-                <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-50 border border-emerald-200">
-                  <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
-                  <div className="text-sm">
-                    <p className="font-medium text-emerald-800">Model found — using {hfResolved.provider} provider</p>
-                    <p className="text-xs text-emerald-600 mt-0.5">{hfResolved.endpoint}</p>
-                  </div>
+              )}
+              {hfUserError && !hfUser && (
+                <div className="flex items-center gap-2 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                  <AlertCircle size={15} />
+                  <span>{hfUserError}</span>
+                </div>
+              )}
+              {!hfUser && !hfUserError && (
+                <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+                  <Loader2 size={15} className="animate-spin" />
+                  <span>Validating token...</span>
                 </div>
               )}
 
-              {hfError && (
-                <div className="flex items-center gap-2 p-3 rounded-lg bg-red-50 border border-red-200">
-                  <AlertCircle size={16} className="text-red-600 shrink-0" />
-                  <p className="text-sm text-red-700">{hfError}</p>
-                </div>
+              {/* Source toggle — only show after whoami succeeds */}
+              {hfUser && (
+                <>
+                  <div>
+                    <Label className="text-sm mb-2 block">Model Source</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => { setHfSource('mine'); setHfSearchQuery(''); setHfModelName(''); setHfResolved(null); setValidated(false) }}
+                        className={`text-left px-3 py-2.5 rounded-lg border text-sm transition-colors ${
+                          hfSource === 'mine'
+                            ? 'border-violet-500 bg-violet-50 text-violet-900'
+                            : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="font-medium text-xs">My HF Repository</div>
+                        <div className="text-[11px] text-gray-500 mt-0.5">Models I&apos;ve uploaded to @{hfUser.username}</div>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setHfSource('public'); setHfSearchQuery(''); setHfModelName(''); setHfResolved(null); setValidated(false) }}
+                        className={`text-left px-3 py-2.5 rounded-lg border text-sm transition-colors ${
+                          hfSource === 'public'
+                            ? 'border-violet-500 bg-violet-50 text-violet-900'
+                            : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="font-medium text-xs">Public HF Models</div>
+                        <div className="text-[11px] text-gray-500 mt-0.5">Any model on HuggingFace Hub</div>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Search input with autocomplete */}
+                  <div className="space-y-2 relative">
+                    <Label htmlFor="hf-search" className="text-sm">
+                      {hfSource === 'mine' ? 'Select from your models' : 'Search public models'}
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="hf-search"
+                        placeholder={hfSource === 'mine' ? 'Filter your uploaded models...' : 'Type to search (e.g., llama, mistral, gemma)'}
+                        value={hfSearchQuery}
+                        onChange={(e) => {
+                          setHfSearchQuery(e.target.value)
+                          setHfShowDropdown(true)
+                          setHfModelName('')
+                          setHfResolved(null)
+                          setValidated(false)
+                        }}
+                        onFocus={() => setHfShowDropdown(true)}
+                        className="text-sm font-mono pr-10"
+                      />
+                      {hfSearchLoading && (
+                        <Loader2 size={14} className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-gray-400" />
+                      )}
+                    </div>
+
+                    {/* Dropdown results */}
+                    {hfShowDropdown && hfSearchResults.length > 0 && (
+                      <div className="absolute z-10 left-0 right-0 mt-1 max-h-72 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg">
+                        {hfSearchResults.map(model => (
+                          <button
+                            key={model.id}
+                            type="button"
+                            onClick={async () => {
+                              setHfModelName(model.id)
+                              setHfSearchQuery(model.id)
+                              setHfShowDropdown(false)
+                              // Auto-resolve provider
+                              if (model.available) {
+                                setHfResolving(true)
+                                setHfError(null)
+                                try {
+                                  const res = await fetch('/api/model/hf-resolve', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ modelId: model.id, apiKey: smartInput }),
+                                  })
+                                  const data = await res.json()
+                                  if (data.resolved) {
+                                    setHfResolved({ endpoint: data.endpoint, providerId: data.providerId, provider: data.provider })
+                                    setModelId(data.providerId)
+                                    setDisplayName(data.modelName)
+                                  } else {
+                                    setHfError(data.error || 'Could not resolve')
+                                  }
+                                } catch {
+                                  setHfError('Network error')
+                                } finally {
+                                  setHfResolving(false)
+                                }
+                              }
+                            }}
+                            disabled={!model.available}
+                            className={`w-full text-left px-3 py-2 border-b border-gray-100 last:border-b-0 transition-colors ${
+                              model.available
+                                ? 'hover:bg-violet-50 cursor-pointer'
+                                : 'opacity-50 cursor-not-allowed bg-gray-50'
+                            }`}
+                          >
+                            <div className="flex items-start gap-2">
+                              {model.available ? (
+                                <CheckCircle2 size={14} className="text-emerald-500 mt-0.5 shrink-0" />
+                              ) : (
+                                <AlertCircle size={14} className="text-red-400 mt-0.5 shrink-0" />
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-mono font-medium text-gray-900 truncate">{model.id}</p>
+                                <p className="text-[10px] text-gray-500 mt-0.5">
+                                  {model.available
+                                    ? `via ${model.firstProvider} · ${model.likes.toLocaleString()} likes`
+                                    : 'No free inference provider available'
+                                  }
+                                </p>
+                              </div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {hfSource === 'mine' && !hfSearchLoading && hfSearchResults.length === 0 && (
+                      <div className="text-xs text-gray-500 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                        No models found in your repository. Switch to &ldquo;Public HF Models&rdquo; to test any model on the Hub.
+                      </div>
+                    )}
+                  </div>
+
+                  {hfResolving && (
+                    <div className="flex items-center gap-2 text-sm text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+                      <Loader2 size={15} className="animate-spin" />
+                      <span>Resolving provider...</span>
+                    </div>
+                  )}
+
+                  {hfResolved && (
+                    <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-50 border border-emerald-200">
+                      <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
+                      <div className="text-sm">
+                        <p className="font-medium text-emerald-800">Ready via {hfResolved.provider}</p>
+                        <p className="text-xs text-emerald-600 mt-0.5 font-mono truncate">{hfModelName}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {hfError && (
+                    <div className="flex items-center gap-2 p-3 rounded-lg bg-red-50 border border-red-200">
+                      <AlertCircle size={16} className="text-red-600 shrink-0" />
+                      <p className="text-sm text-red-700">{hfError}</p>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           )}

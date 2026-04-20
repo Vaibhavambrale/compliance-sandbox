@@ -23,11 +23,17 @@ test.describe('Test Wizard — 4-step evaluation setup flow', () => {
     await expect(page.getByText('Groq', { exact: true })).toBeVisible()
   })
 
-  test('Step 1: detects HuggingFace token', async ({ page }) => {
-    await page.fill('#smart-input', 'hf_test1234567890abcdef')
-    await expect(page.getByText('Detected:', { exact: false })).toBeVisible({ timeout: 3000 })
+  test('Step 1: detects HuggingFace token (full format)', async ({ page }) => {
+    // HF tokens are hf_ + 30+ alphanumeric chars (real tokens are 34-37 chars)
+    await page.fill('#smart-input', 'hf_FAKE_TOKEN_FOR_REGEX_TEST_00000000000')
+    await expect(page.getByText('Detected:', { exact: false })).toBeVisible({ timeout: 5000 })
     await expect(page.getByText('HuggingFace', { exact: true })).toBeVisible()
-    await expect(page.getByText('HuggingFace Model Name', { exact: true })).toBeVisible()
+  })
+
+  test('Step 1: rejects short HuggingFace token', async ({ page }) => {
+    await page.fill('#smart-input', 'hf_short')
+    // Should NOT detect as HF — falls through to "Could not auto-detect"
+    await expect(page.getByText('Could not auto-detect')).toBeVisible({ timeout: 5000 })
   })
 
   test('Step 1: shows advanced config for unknown key', async ({ page }) => {

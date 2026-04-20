@@ -66,10 +66,11 @@ const PROVIDER_PATTERNS: ProviderPattern[] = [
   {
     provider: 'huggingface',
     providerName: 'HuggingFace',
-    patterns: [/^hf_/i],
+    // HF tokens are `hf_` + 30+ alphanumeric chars (typically 34-37 chars total)
+    patterns: [/^hf_[A-Za-z0-9]{30,}$/],
     apiEndpoint: '', // resolved dynamically via /api/model/hf-resolve
     apiFormat: 'openai',
-    suggestedModels: [], // no hardcoded models — user types model name, system resolves provider
+    suggestedModels: [],
     defaultModel: '',
   },
 ]
