@@ -24,8 +24,9 @@ test.describe('Test Wizard — 4-step evaluation setup flow', () => {
   })
 
   test('Step 1: detects HuggingFace token (full format)', async ({ page }) => {
-    // HF tokens are hf_ + 30+ alphanumeric chars (real tokens are 34-37 chars)
-    await page.fill('#smart-input', 'hf_FAKE_TOKEN_FOR_REGEX_TEST_00000000000')
+    // Obvious placeholder. Regex is /^hf_[A-Za-z0-9]{30,}$/ — alphanumeric only
+    // after the `hf_` prefix, so we use "FAKETOKENFORREGEXTEST" + zeros.
+    await page.fill('#smart-input', 'hf_FAKETOKENFORREGEXTEST0000000000000')
     await expect(page.getByText('Detected:', { exact: false })).toBeVisible({ timeout: 5000 })
     await expect(page.getByText('HuggingFace', { exact: true })).toBeVisible()
   })
