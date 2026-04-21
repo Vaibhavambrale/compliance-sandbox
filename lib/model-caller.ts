@@ -44,7 +44,7 @@ async function callOpenAICompatible(config: ModelConfig, prompt: string): Promis
     body: JSON.stringify({
       model: config.modelId,
       messages: [{ role: 'user', content: prompt }],
-      max_tokens: 1024,
+      max_tokens: 2048,
     }),
   })
 
@@ -54,7 +54,10 @@ async function callOpenAICompatible(config: ModelConfig, prompt: string): Promis
   }
 
   const data = await res.json()
-  return data?.choices?.[0]?.message?.content ?? 'No response from model'
+  const msg = data?.choices?.[0]?.message
+  const raw = (msg?.content ?? msg?.reasoning_content ?? '') as string
+  const stripped = raw.replace(/<think>[\s\S]*?<\/think>/g, '').trim()
+  return stripped || raw.trim() || 'No response from model'
 }
 
 async function callAnthropic(config: ModelConfig, prompt: string): Promise<string> {

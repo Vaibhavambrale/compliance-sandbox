@@ -19,15 +19,19 @@ Both layers combine into a Deployment Readiness Score (0-100) with a verdict: De
 
 ## CURRENT STATUS
 
-> Last synced: **2026-04-18** — major architecture overhaul: BYOM, programmatic multi-metric scoring, Layer 2 benchmarks. Branch `main` @ `f5b67f2`.
+> Last synced: **2026-04-21** — Tier 1 DeepEval integration complete. Dual-track scoring, real benchmarks, quick-demo mode.
 
-### Snapshot — April 18, 2026 (7 days to IEEE presentation)
-- **All 9 bugs fixed.** BUG 5 eliminated by removing LLM-as-judge entirely. BUG 6 (Layer 2) implemented. BUG 7 (benchmarks page) replaced with real results.
-- **BYOM architecture** — users provide their own model API (OpenAI, Anthropic, Google, Groq, Azure, Ollama, custom).
-- **Programmatic scoring engine** — 7 deterministic metrics, no Claude for scoring. Claude used only for report narrative.
-- **83 probes** across universal (20), framework-specific (36), sector-specific (27) with ground truth metadata.
-- **Layer 2 benchmarking** — 50 MCQ questions across knowledge, truthfulness, fairness.
-- Build green. All features committed and pushed.
+### Snapshot — April 21, 2026 (4 days to IEEE presentation)
+- **Tier 1 DeepEval integration shipped.**
+  - **Dual-track scoring** (`lib/evaluation-metrics.ts` + `lib/deepeval-metrics/`): programmatic track primary (deterministic); semantic track additive (LLM-as-judge, ported prompts from DeepEval). Readiness verdict unchanged — still driven by programmatic.
+  - **4 semantic metrics**: Bias, Toxicity, Hallucination, PIILeakage — ported verbatim from `deepeval/metrics/*/template.py`. All run via Claude Haiku at `temperature=0` with a global per-run budget.
+  - **Judge infrastructure** (`lib/judge-caller.ts`): token-bucket + retry + budget; never throws to caller, degrades gracefully.
+  - **Reason strings** on every metric — tooltip on hover in live + report UI.
+  - **Semantic Verification card** (`components/report/SemanticVerificationCard.tsx`) on report page — programmatic vs semantic side-by-side with agreement flag.
+  - **Real benchmarks** (`lib/benchmark-data/*.json`): MMLU clinical/professional-medicine/law/cybersec/econometrics + TruthfulQA, alongside existing custom sets. Source labeled in UI.
+  - **Quick-demo mode** (`?quick=1`): caps to 10 probes, disables semantic. Backup path for live panel demo.
+- **BYOM architecture** unchanged. HuggingFace source toggle + unified router + smart detection all functional.
+- Build green. Env vars added: `JUDGE_MODEL`, `JUDGE_TEMPERATURE`, `JUDGE_MAX_CALLS_PER_RUN` (set =0 to kill the judge layer).
 
 ### What is genuinely complete and working:
 - Next.js 14 app, Supabase connected, Vercel auto-deploy, sidebar layout, error boundary.
@@ -64,10 +68,58 @@ Both layers combine into a Deployment Readiness Score (0-100) with a verdict: De
 - **No authentication.** No middleware, no session, no user isolation.
 - **No Supabase RLS policies.** Settings table readable via anon key.
 - **No generated DB types.** Hand-declared interfaces in `lib/api/*.ts`.
-- **No tests / CI.** Zero test files, no GitHub Actions.
+- **No CI.** Playwright passes locally (35/35). No GitHub Actions yet.
 - **No rate limiting** on `/api/test/run` or `/api/benchmark/run`.
 - **No observability.** No Sentry/analytics.
 - **No cron keep-alive** for Supabase free-tier pausing.
+- **No data-clear / delete functionality.** `test_runs` and `test_probes` rows accumulate indefinitely. Dashboard may show stale data if cached.
+
+### Current snapshot (2026-04-21 — India Compliance Matrix expansion complete)
+
+**Regulatory coverage — India focus:**
+- **10 frameworks** in `lib/frameworks.ts`:
+  - Global / EU: `eu-ai-act`, `nist-ai-rmf`
+  - India enforceable (Tier-A baseline, applied to every India run): `india-dpdp-2023`, `india-it-act`, `india-cpa-2019`
+  - India advisory: `meity-ai-advisory` (status=`advisory`, labelled in UI)
+  - India sector-specific: `india-rbi-lending`, `india-sebi-ai`, `india-irdai-ics`, `india-icmr-ai`
+- **Probes with structured `regulation_citations`**:
+  - DPDP: 10 probes tagged with §5/§6/§8(3)/§9/§11/§16 + SPDI Rule 5
+  - MEITY: 8 probes tagged with BNS §353, IT Rules Rule 3(1)(b), DPDP §16
+  - IT Act suite: 8 new probes (§43A/§66/§79 + IT Rule 3(1)(b) + CERT-In 2022 + BNS §111/§196)
+  - Consumer Protection: 4 new probes (§2(47)/§2(28)/§84)
+  - RBI Lending: 5 new probes (DL 2022 annex + FREE-AI 2025)
+  - SEBI AI: 3 new probes (AI/ML circular)
+  - IRDAI ICS: 3 new probes (fairness + security)
+  - ICMR AI: 3 new probes (physician referral, no prescription, informed consent)
+  - Sector probes: healthcare (Clinical Establishments Act, NMC/Telemed, ICMR), legal (Advocates Act, Indian Contract Act), autonomous (Official Secrets Act)
+- **Law metadata** in `lib/regulation-metadata.ts` — plain-English summary + enforcement status for every cited law. Used by the India Compliance Matrix.
+
+**Region-driven probe selection:**
+- `getProbesForTest(frameworks, useCase, region?)` in `lib/probes/index.ts`. When `region === 'India'`, it auto-unions the India baseline frameworks + matches sector frameworks to detected scenario (healthcare → ICMR, finance → RBI).
+- Region is threaded: wizard → `/api/test/start` → stored on `test_runs.region` → `/api/test/run` → probe selector.
+- Region cards in wizard now have strong selected-state visuals + `data-testid` hooks.
+
+**Data hygiene:**
+- Dashboard and History pages: `export const dynamic = 'force-dynamic'` + `revalidate = 0`. Dashboard has a ↻ Refresh button calling `router.refresh()`.
+- `/api/runs/delete` (edge) supports two modes: single-run delete + all-clear with typed-DELETE confirmation. Cascades to `test_probes`, `benchmark_results`, `remediation_items`. Blocks deletion of runs in `status=running`.
+- Per-run delete button on History page (confirm dialog). "Clear all test data" in Settings (typed-DELETE guard).
+
+**Report UX:**
+- `components/report/IndiaComplianceMatrix.tsx` — regulation-grouped pass/fail card. Shows section, requirement summary, probe used, model response, verdict (PASS/PARTIAL/FAIL). Grouped by law with ENACTED / GUIDELINE / ADVISORY chips.
+- Still rendered alongside the existing Semantic Verification card from Tier 1.
+
+### Key files added this iteration
+- `lib/probes/frameworks/it-act.ts`, `cpa.ts`, `rbi-lending.ts`, `sebi-ai.ts`, `irdai-ics.ts`, `icmr-ai.ts`
+- `lib/regulation-metadata.ts`
+- `components/report/IndiaComplianceMatrix.tsx`
+- `app/api/runs/delete/route.ts`
+- `app/(dashboard)/history/delete-run-button.tsx`
+- `app/(dashboard)/dashboard/refresh-button.tsx`
+
+### Historical ground-truth snapshot (pre-expansion)
+- 5 sector probe files: healthcare (6), finance (6), legal (5), cyber (5), autonomous (5).
+- 4 original frameworks (DPDP, EU AI Act, NIST, MEITY) — now 10 after expansion.
+- Region selection previously only pre-selected frameworks — now drives probe filtering.
 
 ### Code debt worth knowing:
 - Report page is ~600 LOC — should split into components.

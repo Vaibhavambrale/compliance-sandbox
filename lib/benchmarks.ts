@@ -13,6 +13,8 @@ export interface BenchmarkQuestion {
   explanation: string
 }
 
+export type BenchmarkSource = 'custom' | 'mmlu' | 'truthfulqa' | 'bbq'
+
 export interface BenchmarkDef {
   id: string
   name: string
@@ -21,6 +23,9 @@ export interface BenchmarkDef {
   questions: BenchmarkQuestion[]
   published_baseline: number   // 0-1 (e.g., GPT-4 baseline from literature)
   minimum_acceptable: number   // 0-1
+  source?: BenchmarkSource     // default 'custom' if absent
+  dataset_id?: string          // HF dataset ID if source !== 'custom'
+  config?: string              // HF config name (MMLU subset, TruthfulQA mode, etc.)
 }
 
 // ─── Healthcare Benchmarks ──────────────────────────────────────────
@@ -269,13 +274,70 @@ const AUTONOMOUS_KNOWLEDGE: BenchmarkDef = {
   ],
 }
 
+// ─── Real Benchmarks (extracted from HF Datasets Server) ──────────────
+// Extracted via scripts/extract_benchmarks.js. Re-run to refresh.
+
+import mmluClinical from './benchmark-data/mmlu-clinical.json'
+import mmluMedPro from './benchmark-data/mmlu-med-professional.json'
+import mmluLaw from './benchmark-data/mmlu-law.json'
+import mmluCybersec from './benchmark-data/mmlu-cybersec.json'
+import mmluEconometrics from './benchmark-data/mmlu-econometrics.json'
+import truthfulQA from './benchmark-data/truthfulqa.json'
+
+type RealBenchmarkJson = {
+  name: string
+  source: BenchmarkSource
+  dataset_id: string
+  config: string
+  split: string
+  published_baseline: number
+  minimum_acceptable: number
+  questions: BenchmarkQuestion[]
+}
+
+function toBenchmark(
+  id: string,
+  useCase: string,
+  category: 'knowledge' | 'truthfulness' | 'fairness',
+  json: RealBenchmarkJson
+): BenchmarkDef {
+  return {
+    id,
+    name: json.name,
+    category,
+    use_case: useCase,
+    questions: json.questions,
+    published_baseline: json.published_baseline,
+    minimum_acceptable: json.minimum_acceptable,
+    source: json.source,
+    dataset_id: json.dataset_id,
+    config: json.config,
+  }
+}
+
+const REAL_BENCHMARKS: BenchmarkDef[] = [
+  toBenchmark('mmlu-clinical', 'virtual-health-assistant', 'knowledge', mmluClinical as RealBenchmarkJson),
+  toBenchmark('mmlu-med-pro', 'virtual-health-assistant', 'knowledge', mmluMedPro as RealBenchmarkJson),
+  toBenchmark('mmlu-law', 'legal-research', 'knowledge', mmluLaw as RealBenchmarkJson),
+  toBenchmark('mmlu-law-contract', 'contract-analysis', 'knowledge', mmluLaw as RealBenchmarkJson),
+  toBenchmark('mmlu-cybersec', 'cyber-defense', 'knowledge', mmluCybersec as RealBenchmarkJson),
+  toBenchmark('mmlu-econ', 'loan-underwriting', 'knowledge', mmluEconometrics as RealBenchmarkJson),
+  // TruthfulQA applies universally to all use cases for hallucination testing
+  toBenchmark('tqa-health',  'virtual-health-assistant', 'truthfulness', truthfulQA as RealBenchmarkJson),
+  toBenchmark('tqa-finance', 'loan-underwriting',        'truthfulness', truthfulQA as RealBenchmarkJson),
+  toBenchmark('tqa-legal',   'legal-research',           'truthfulness', truthfulQA as RealBenchmarkJson),
+]
+
 // ─── Benchmark Registry ─────────────────────────────────────────────
 
 const ALL_BENCHMARKS: BenchmarkDef[] = [
+  // Custom hand-authored sets (kept for backward compatibility & India-specific compliance)
   HEALTHCARE_KNOWLEDGE, HEALTHCARE_TRUTHFULNESS, HEALTHCARE_FAIRNESS,
   FINANCE_KNOWLEDGE, FINANCE_TRUTHFULNESS, FINANCE_FAIRNESS,
   LEGAL_KNOWLEDGE, CONTRACT_KNOWLEDGE,
   CYBER_KNOWLEDGE, AUTONOMOUS_KNOWLEDGE,
+  // Real published benchmarks (extracted from HuggingFace datasets)
+  ...REAL_BENCHMARKS,
 ]
 
 /**

@@ -16,7 +16,7 @@ interface HfModel {
   pipeline_tag?: string
   // From /api/models list endpoint, this is an array
   // From /api/models/{id} single endpoint, this is a Record
-  inferenceProviderMapping?: ProviderEntry[] | Record<string, { status: string; providerId: string }>
+  inferenceProviderMapping?: ProviderEntry[] | Record<string, { status: string; providerId: string; task?: string }>
 }
 
 /**
@@ -83,14 +83,14 @@ export async function POST(req: NextRequest) {
       let liveProviders: string[] = []
 
       if (Array.isArray(ipm)) {
-        // List endpoint shape: [{ provider, providerId, status, ... }]
+        // List endpoint shape: [{ provider, providerId, status, task, ... }]
         liveProviders = ipm
-          .filter((p) => p.status === 'live')
+          .filter((p) => p.status === 'live' && p.task === 'conversational')
           .map((p) => p.provider)
       } else if (ipm && typeof ipm === 'object') {
-        // Single endpoint shape: { providerName: { status, providerId, ... } }
+        // Single endpoint shape: { providerName: { status, providerId, task, ... } }
         liveProviders = Object.entries(ipm)
-          .filter(([, v]) => v.status === 'live')
+          .filter(([, v]) => v.status === 'live' && v.task === 'conversational')
           .map(([name]) => name)
       }
 

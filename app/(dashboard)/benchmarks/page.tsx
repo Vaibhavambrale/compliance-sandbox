@@ -10,6 +10,17 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import Link from 'next/link'
+import { getAllBenchmarks } from '@/lib/benchmarks'
+
+function sourceBadge(source: string) {
+  const map: Record<string, string> = {
+    custom: 'bg-gray-100 text-gray-700',
+    mmlu: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+    truthfulqa: 'bg-purple-50 text-purple-700 border-purple-200',
+    bbq: 'bg-rose-50 text-rose-700 border-rose-200',
+  }
+  return map[source] ?? map.custom
+}
 
 interface BenchmarkRow {
   id: string
@@ -51,6 +62,56 @@ export default async function BenchmarksPage() {
           Domain-specific knowledge, truthfulness, and fairness benchmark results across all evaluations
         </p>
       </div>
+
+      {/* Benchmark library reference */}
+      <Card data-testid="benchmark-library">
+        <CardHeader>
+          <CardTitle className="text-base">Benchmark Library</CardTitle>
+          <CardDescription>
+            All benchmark sets available on this platform, with their source and published baselines.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Use Case</TableHead>
+                <TableHead>Source</TableHead>
+                <TableHead className="text-right">Questions</TableHead>
+                <TableHead className="text-right">Baseline</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {getAllBenchmarks().map(b => (
+                <TableRow key={b.id}>
+                  <TableCell className="text-sm font-medium">{b.name}</TableCell>
+                  <TableCell className="text-xs text-muted-foreground">{b.use_case}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className={`text-xs uppercase ${sourceBadge(b.source ?? 'custom')}`}>
+                      {b.source ?? 'custom'}
+                    </Badge>
+                    {b.dataset_id && (
+                      <span className="ml-2 text-xs text-muted-foreground">{b.dataset_id}/{b.config}</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-right text-sm">{b.questions.length}</TableCell>
+                  <TableCell className="text-right text-sm">{Math.round(b.published_baseline * 100)}%</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      <Card className="border-amber-200 bg-amber-50">
+        <CardContent className="pt-4 pb-4 text-sm text-amber-900">
+          <strong>Benchmark contamination note:</strong> Published benchmarks such as MMLU, TruthfulQA, and BBQ
+          may overlap with the training data of proprietary LLMs. Scores should be interpreted as upper bounds.
+          Our custom benchmarks (labelled <em>custom</em>) are authored in-house and include India-specific compliance
+          content not present in public training corpora.
+        </CardContent>
+      </Card>
 
       {rows.length === 0 ? (
         <Card>

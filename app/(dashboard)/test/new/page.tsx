@@ -10,6 +10,8 @@ import {
   AlertCircle,
   X,
   ChevronDown,
+  Eye,
+  EyeOff,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -39,6 +41,7 @@ function NewTestPageInner() {
 
   // Step 1: Smart model input
   const [smartInput, setSmartInput] = useState('')
+  const [showKey, setShowKey] = useState(false)
   const [detected, setDetected] = useState<DetectedModel | null>(null)
   const [modelId, setModelId] = useState('')
   const [displayName, setDisplayName] = useState('')
@@ -267,7 +270,7 @@ function NewTestPageInner() {
   }
 
   const probeCount = selectedFrameworks.length > 0 && useCaseDescription.trim()
-    ? getProbeCount(selectedFrameworks, useCaseDescription)
+    ? getProbeCount(selectedFrameworks, useCaseDescription, selectedRegion ?? undefined)
     : 0
   const estimatedMinutes = Math.ceil((probeCount * 6) / 60)
 
@@ -276,7 +279,7 @@ function NewTestPageInner() {
     detected?.provider !== 'huggingface' || hfResolved !== null
   )
 
-  async function handleRunTest() {
+  async function handleRunTest(quickMode = false) {
     const config = getModelConfig()
     if (!config.apiKey || !config.apiEndpoint || !useCaseDescription.trim() || selectedFrameworks.length === 0) {
       setError('Please complete all steps.')
@@ -295,7 +298,7 @@ function NewTestPageInner() {
       })
       // Store model config AFTER successful API call (not before)
       sessionStorage.setItem('model_config', JSON.stringify(config))
-      router.push(`/test/${id}`)
+      router.push(quickMode ? `/test/${id}?quick=1` : `/test/${id}`)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to start evaluation')
       setSubmitting(false)
@@ -345,14 +348,41 @@ function NewTestPageInner() {
           {/* Smart input */}
           <div className="space-y-2">
             <Label htmlFor="smart-input" className="text-sm font-medium">API Key or HuggingFace Model</Label>
-            <Input
-              id="smart-input"
-              type={detected?.inputType === 'api_key' ? 'password' : 'text'}
-              placeholder="e.g., sk-proj-... or gsk_... or meta-llama/Llama-3-8B"
-              value={smartInput}
-              onChange={(e) => setSmartInput(e.target.value)}
-              className="font-mono text-sm h-11"
-            />
+            <div className="relative">
+              <Input
+                id="smart-input"
+                type="text"
+                placeholder="e.g., sk-proj-... or gsk_... or meta-llama/Llama-3-8B"
+                value={smartInput}
+                autoComplete="off"
+                spellCheck={false}
+                autoCorrect="off"
+                autoCapitalize="off"
+                onChange={(e) => {
+                  const cleaned = e.target.value
+                    .replace(/^\s*Bearer\s+/i, '')
+                    .replace(/^["'`]+|["'`]+$/g, '')
+                    .trim()
+                  setSmartInput(cleaned)
+                }}
+                style={
+                  detected?.inputType === 'api_key' && !showKey
+                    ? ({ WebkitTextSecurity: 'disc' } as React.CSSProperties)
+                    : undefined
+                }
+                className="font-mono text-sm h-11 pr-10"
+              />
+              {detected?.inputType === 'api_key' && (
+                <button
+                  type="button"
+                  onClick={() => setShowKey(v => !v)}
+                  className="absolute inset-y-0 right-2 flex items-center text-muted-foreground hover:text-foreground"
+                  aria-label={showKey ? 'Hide key' : 'Show key'}
+                >
+                  {showKey ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Detection result */}
@@ -668,19 +698,50 @@ function NewTestPageInner() {
               const isSelected = selectedRegion === region.id
               const regionFrameworks = getFrameworksForRegion(region.id)
               return (
-                <Card key={region.id} className={`cursor-pointer transition-all hover:shadow-md ${isSelected ? 'border-violet-500 ring-2 ring-violet-500/20 bg-violet-50/50' : 'border-gray-200 hover:border-gray-300'}`} onClick={() => handleRegionSelect(region.id)}>
+                <Card
+                  key={region.id}
+                  data-testid={`region-card-${region.id.toLowerCase()}`}
+                  data-selected={isSelected}
+                  role="button"
+                  aria-pressed={isSelected}
+                  tabIndex={0}
+                  className={
+                    isSelected
+                      ? 'cursor-pointer transition-all border-2 border-violet-600 ring-4 ring-violet-500/20 bg-violet-50 shadow-md'
+                      : 'cursor-pointer transition-all border-2 border-gray-200 hover:border-gray-300 hover:shadow-sm'
+                  }
+                  onClick={() => handleRegionSelect(region.id)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      handleRegionSelect(region.id)
+                    }
+                  }}
+                >
                   <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <span className="text-2xl">{region.flag}</span>
-                        <CardTitle className="text-base">{region.name}</CardTitle>
+                        <CardTitle className={isSelected ? 'text-base text-violet-900' : 'text-base'}>{region.name}</CardTitle>
                       </div>
-                      {isSelected && <CheckCircle2 size={20} className="text-violet-600" />}
+                      {isSelected ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-violet-600 text-white text-[10px] font-semibold px-2 py-0.5" data-testid="region-selected-badge">
+                          <CheckCircle2 size={12} /> Selected
+                        </span>
+                      ) : null}
                     </div>
                   </CardHeader>
                   <CardContent>
                     <div className="flex flex-wrap gap-1">
-                      {regionFrameworks.map(fw => <Badge key={fw.id} variant="secondary" className="text-[10px]">{fw.shortName}</Badge>)}
+                      {regionFrameworks.map(fw => (
+                        <Badge
+                          key={fw.id}
+                          variant="secondary"
+                          className={isSelected ? 'text-[10px] bg-violet-100 text-violet-800 border-violet-200' : 'text-[10px]'}
+                        >
+                          {fw.shortName}
+                        </Badge>
+                      ))}
                     </div>
                   </CardContent>
                 </Card>
@@ -800,11 +861,29 @@ function NewTestPageInner() {
 
           {error && <p className="text-sm text-red-600">{error}</p>}
 
-          <div className="flex justify-between">
+          <div className="flex justify-between items-center">
             <Button variant="outline" onClick={() => setStep(2)}><ArrowLeft size={14} className="mr-1" /> Back</Button>
-            <Button size="lg" onClick={handleRunTest} disabled={submitting || selectedFrameworks.length === 0} className="bg-violet-600 hover:bg-violet-700 text-white shadow-sm">
-              {submitting ? <><Loader2 size={14} className="mr-1 animate-spin" /> Starting...</> : 'Start Evaluation'}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => handleRunTest(true)}
+                disabled={submitting || selectedFrameworks.length === 0}
+                data-testid="quick-demo-button"
+                title="Run 10 probes, skip LLM-judge semantic layer — ~90 seconds"
+              >
+                Quick Demo (10 probes)
+              </Button>
+              <Button
+                size="lg"
+                onClick={() => handleRunTest(false)}
+                disabled={submitting || selectedFrameworks.length === 0}
+                className="bg-violet-600 hover:bg-violet-700 text-white shadow-sm"
+                data-testid="start-evaluation-button"
+              >
+                {submitting ? <><Loader2 size={14} className="mr-1 animate-spin" /> Starting...</> : 'Start Evaluation'}
+              </Button>
+            </div>
           </div>
         </div>
       )}

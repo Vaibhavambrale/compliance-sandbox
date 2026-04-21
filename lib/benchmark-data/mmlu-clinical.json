@@ -1,0 +1,191 @@
+{
+  "name": "MMLU: Clinical Knowledge",
+  "source": "mmlu",
+  "dataset_id": "cais/mmlu",
+  "config": "clinical_knowledge",
+  "split": "test",
+  "published_baseline": 0.86,
+  "minimum_acceptable": 0.6599999999999999,
+  "questions": [
+    {
+      "id": "mmlu-clin-1",
+      "question": "What size of cannula would you use in a patient who needed a rapid blood transfusion (as of 2020 medical knowledge)?\nA) 18 gauge.\nB) 20 gauge.\nC) 22 gauge.\nD) 24 gauge.",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "A",
+      "explanation": "Subject: clinical_knowledge. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-clin-2",
+      "question": "The key attribute in successful marathon running is:\nA) strength.\nB) power.\nC) stride length.\nD) stamina.",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "D",
+      "explanation": "Subject: clinical_knowledge. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-clin-3",
+      "question": "Which of the following is the commonest cause of dementia in the UK?\nA) Alzheimer's disease.\nB) Cerebrovascular (stroke) disease.\nC) Lewy body dementia.\nD) HIV infection.",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "A",
+      "explanation": "Subject: clinical_knowledge. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-clin-4",
+      "question": "Which of the following is NOT a symptom of anaphylaxis?\nA) Stridor.\nB) Bradycardia.\nC) Severe wheeze.\nD) Rash.",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "B",
+      "explanation": "Subject: clinical_knowledge. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-clin-5",
+      "question": "In what situation are closed pouches applied?\nA) The patient has a semi-formed or liquid output.\nB) The patient has a colostomy.\nC) In the immediate post-operative period.\nD) The patient has a urostomy.",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "B",
+      "explanation": "Subject: clinical_knowledge. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-clin-6",
+      "question": "With an increasing number of sprints the:\nA) anaerobic contribution progressively increases.\nB) pH of the muscle falls below 6.0.\nC) blood glucose concentration falls below 3 mmol/L.\nD) relative contribution of aerobic metabolism increases.",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "D",
+      "explanation": "Subject: clinical_knowledge. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-clin-7",
+      "question": "Which of the following is true in diplopia?\nA) Diplopia can never occur if one eye is covered\nB) The outer image is always the false image\nC) A fourth nerve palsy occurs when the patient looks upwards\nD) A sixth nerve palsy causes a divergent squint",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "B",
+      "explanation": "Subject: clinical_knowledge. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-clin-8",
+      "question": "Sodium bicarbonate ingestion improves middle distance running performance by:\nA) elevating the pH and buffering capacity of the extracellular fluid allowing a faster efflux of hydrogen ions from muscle.\nB) reducing the pH and buffering capacity of the extracellular fluid allowing a faster efflux of hydrogen ions from muscle.\nC) elevating the pH and buffering capacity of the extracellular fluid allowing a faster influx of hydrogen ions into muscle.\nD) elevating the pre-exercise muscle pH.",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "A",
+      "explanation": "Subject: clinical_knowledge. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-clin-9",
+      "question": "Codons are composed of:\nA) triplet sequences of nucleotide bases in mRNA or DNA .\nB) quadruplet sequences of nucleotide bases in mRNA or DNA.\nC) triplet sequences of amino acids in polypeptide chains.\nD) triplet sequences of deoxyribose sugars in DNA.",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "A",
+      "explanation": "Subject: clinical_knowledge. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-clin-10",
+      "question": "Fatty acids are transported into the mitochondria bound to:\nA) thiokinase.\nB) coenzyme A (CoA).\nC) acetyl-CoA.\nD) carnitine.",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "D",
+      "explanation": "Subject: clinical_knowledge. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-clin-11",
+      "question": "Which of the answers below best indicates the compatible blood types that can be given to a person with a blood group B (rhesus negative)?\nA) Blood type AB (rhesus negative), blood type B, and blood type O (rhesus negative).\nB) Blood type B (rhesus positive) and blood type O (rhesus positive).\nC) Blood type B (rhesus negative) and blood type O (rhesus negative).\nD) Blood type B (rhesus negative) only.",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "C",
+      "explanation": "Subject: clinical_knowledge. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-clin-12",
+      "question": "Which of the following is true of a lower motor neurone lesion in the arm?\nA) It leads to increased tone in the arm (hypertonia)\nB) Fasciculations are never seen\nC) The reflexes are brisk\nD) An ulna nerve palsy is an example of a lower motor neurone lesion",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "D",
+      "explanation": "Subject: clinical_knowledge. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-clin-13",
+      "question": "Which of the following statements is false?\nA) Ammonia is produced in repeated high intensity exercise.\nB) Muscle lactate accumulation does not begin until at least 5 seconds of intermittent muscle contractions have taken place.\nC) Muscle phosphocreatine depletion begins in the first few seconds of high intensity exercise.\nD) With an increasing number of repeated sprints the rate of accumulation of lactate in muscle declines.",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "B",
+      "explanation": "Subject: clinical_knowledge. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-clin-14",
+      "question": "Glycogen breakdown in muscle initially results in the formation of:\nA) glucose.\nB) glucose-1-phosphate.\nC) glucose-6-phosphate.\nD) glucose-1,6-diphosphate.",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "B",
+      "explanation": "Subject: clinical_knowledge. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-clin-15",
+      "question": "The two principal contractile proteins found in skeletal muscle are:\nA) actin and troponin.\nB) actin and myosin.\nC) troponin and tropomyosin.\nD) myosin and tropomyosin.",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "B",
+      "explanation": "Subject: clinical_knowledge. MMLU benchmark."
+    }
+  ]
+}

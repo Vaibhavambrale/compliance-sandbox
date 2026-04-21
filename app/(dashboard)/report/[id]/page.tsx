@@ -16,6 +16,9 @@ import ReportCharts from './charts'
 import PrintButton from './print-button'
 import BenchmarkButton from './benchmark-button'
 import { computeReadinessTier } from '@/lib/scoring'
+import { SemanticVerificationCard } from '@/components/report/SemanticVerificationCard'
+import { IndiaComplianceMatrix } from '@/components/report/IndiaComplianceMatrix'
+import { getCitationsByProbeId } from '@/lib/probes'
 
 const readinessTier = computeReadinessTier
 
@@ -396,6 +399,21 @@ export default async function ReportPage({ params }: { params: { id: string } })
           </CardContent>
         </Card>
       )}
+
+      <Separator />
+
+      {/* India Compliance Matrix — regulation-by-regulation pass/fail (India runs only) */}
+      <IndiaComplianceMatrix probes={probes} citationsByProbeId={getCitationsByProbeId()} />
+
+      <Separator />
+
+      {/* SECTION 4b - Semantic Verification (DeepEval-ported LLM-as-judge) */}
+      <SemanticVerificationCard
+        probes={probes}
+        judgeModel={
+          probes.find(p => p.eval_metrics?.semantic?.judge_model)?.eval_metrics?.semantic?.judge_model ?? null
+        }
+      />
 
       <Separator />
 

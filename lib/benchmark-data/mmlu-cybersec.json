@@ -1,0 +1,191 @@
+{
+  "name": "MMLU: Computer Security",
+  "source": "mmlu",
+  "dataset_id": "cais/mmlu",
+  "config": "computer_security",
+  "split": "test",
+  "published_baseline": 0.87,
+  "minimum_acceptable": 0.6699999999999999,
+  "questions": [
+    {
+      "id": "mmlu-sec-1",
+      "question": "Which of the following styles of fuzzer is more likely to explore paths covering every line of code in the following program?\nA) Generational\nB) Blackbox\nC) Whitebox\nD) Mutation-based",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "C",
+      "explanation": "Subject: computer_security. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-sec-2",
+      "question": "Assume that a TLS connection has been established successfully between a client and a server. Establishing the session included checking the server certificate and executing a DiffieHelmann exchange, but the client did not provide a client certificate. Further, assume that the client and server are honest, that the client and server don’t leak their keys, and that the cryptography is good. Which of the following attacks does TLS protect against?\n1. An attacker replaying bytes that a client sent earlier.\n2. An attacker impersonating the server.\nA) True, True\nB) False, False\nC) True, False\nD) False, True",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "A",
+      "explanation": "Subject: computer_security. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-sec-3",
+      "question": "MIT’s Kerberos KDC server has a maximum ticket lifetime of 24 hours (for most user principals). What ensures that an expired Kerberos ticket can no longer be used?\nA) The Kerberos server (KDC) refuses to establish new connections between clients and servers for expired tickets.\nB) When a client connects to a server, the server sets a 24-hour timer to terminate the connection, which ensures a client cannot remain connected past the ticket’s maximum lifetime.\nC) When a client connects to a server, the server compares the ticket’s expiration time to the server’s current clock, and refuses to authenticate the user if the ticket expiration time is in the past.\nD) When a client connects to a server, the server sends a query to the KDC to check if the ticket is still valid with respect to the KDC’s clock, and refuses to authenticate the user if the KDC reports that the ticket is expired.",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "C",
+      "explanation": "Subject: computer_security. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-sec-4",
+      "question": "In Message Condentiality, the transmitted message must make sense to only intended\nA) Receiver\nB) Sender\nC) Modulor\nD) Translator",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "A",
+      "explanation": "Subject: computer_security. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-sec-5",
+      "question": "Which of the following is a remote Trojan?\nA) Troya\nB) DaCryptic\nC) BankerA\nD) Game-Troj",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "A",
+      "explanation": "Subject: computer_security. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-sec-6",
+      "question": "______________ is a widespread app’s coding mistake made by developers which could be exploited by an attacker for gaining access or malfunctioning your system.\nA) Memory leakage\nB) Buffer-overrun\nC) Less processing power\nD) Inefficient programming",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "B",
+      "explanation": "Subject: computer_security. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-sec-7",
+      "question": "Consider the paper Native Client: A Sandbox for Portable, Untrusted x86 Native Code by Yee et al. Ben Bitdiddle notes that NaCl uses Intel x86 segmentation to ensure that the sandboxed module does not read or write memory outside its own data area, and does not execute instructions outside its own code. Ben thinks that with these restrictions alone, executing the sandboxed module must be safe; that is, he thinks validation is not needed. Ben is wrong. Circle the types of x86 machine instructions that the validator always forbids in sandboxed code. Please ignore trampoline and springboard code.\nA) all instructions that modify segment state\nB) all loads or stores to addresses that are not 0 mod 32\nC) all indirect loads or stores (via an address in a register or variable)\nD) all indirect jumps (via an address in a register or variable)",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "A",
+      "explanation": "Subject: computer_security. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-sec-8",
+      "question": "____________ is also a part of darknet that is employed for transferring files anonymously.\nA) Freenet\nB) ARPANET\nC) Stuxnet\nD) Internet",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "A",
+      "explanation": "Subject: computer_security. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-sec-9",
+      "question": "Why apps developed in languages like C, C++ is prone to Buffer-overflow?\nA) No string boundary checks in predefined functions\nB) No storage check in the external memory\nC) No processing power check\nD) No database check",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "A",
+      "explanation": "Subject: computer_security. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-sec-10",
+      "question": "Man in the middle attack can endanger the security of Diffie Hellman method if two parties are not\nA) Joined\nB) Authenticated\nC) Submitted\nD) Shared",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "B",
+      "explanation": "Subject: computer_security. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-sec-11",
+      "question": "An integer overflow occurs when\nA) an integer expression's result \"wraps around\"; instead of creating a very large number, a very small (or negative) number ends up getting created\nB) an integer is used as if it was a pointer\nC) an integer is used to access a buffer outside of the buffer's bounds\nD) there is no more space to hold integers in the program",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "D",
+      "explanation": "Subject: computer_security. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-sec-12",
+      "question": "Let HH be a Merkle-Damgard hash function is H:X^{\\leq L} \\to TH:X^≤L  →T. Construct a MAC from this HH as follows: \\ \\ S(k,m) = H(k \\| m)  S(k,m)=H(k∥m). This mac is insecure because:\nA) Given H(k \\| m)H(k∥m) anyone can compute H(w \\| k \\| m \\| \\text{PB})H(w∥k∥m∥PB) for any ww\nB) Given H(k \\| m)H(k∥m) anyone can compute H(k \\| m \\| w)H(k∥m∥w) for any ww\nC) Given H(k \\| m)H(k∥m) anyone can compute H(k \\| m \\| \\text{PB} \\| w)H(k∥m∥PB∥w) for any ww\nD) Anyone can compute H( k \\| m )H(k∥m) for any mm",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "C",
+      "explanation": "Subject: computer_security. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-sec-13",
+      "question": "Suppose that Alice and Bob sent confidential text messages to one another last month through an encrypted messaging system. Alice and Bob are worried that an adversary might compromise one of their computers today, while they are taking the 6.858 final exam, and would then be able to decrypt those messages. Which of the following security properties can address Alice and Bob’s concern?\nA) Authentication.\nB) Deniability.\nC) Forward secrecy\nD) Backward secrecy.",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "C",
+      "explanation": "Subject: computer_security. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-sec-14",
+      "question": "The AH Protocol provides source authentication and data integrity, but not\nA) Integrity\nB) Privacy\nC) Nonrepudiation\nD) Both A & C",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "B",
+      "explanation": "Subject: computer_security. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-sec-15",
+      "question": "Which of the following is not a security exploit?\nA) Eavesdropping\nB) Cross-site scripting\nC) Authentication\nD) SQL Injection",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "C",
+      "explanation": "Subject: computer_security. MMLU benchmark."
+    }
+  ]
+}

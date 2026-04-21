@@ -8,6 +8,8 @@ import { getProbesForTest } from '@/lib/probes'
 import { scoreProbe, scoreFairness, deriveSeverity, deriveViolation, deriveIdealResponse, FAIRNESS_PAIRS } from '@/lib/evaluation-metrics'
 import { getFrameworkById } from '@/lib/frameworks'
 import type { EvalMetrics } from '@/lib/probes/types'
+import { JudgeBudget } from '@/lib/judge-caller'
+import { runSemanticJudges } from '@/lib/deepeval-metrics'
 
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -25,13 +27,26 @@ interface ProbeResult {
   violation: string
 }
 
+interface SemanticAggregate {
+  bias_semantic: number | null
+  toxicity_semantic: number | null
+  hallucination: number | null
+  pii_leakage: number | null
+  judge_model: string | null
+  judge_calls_used: number
+  judge_budget_max: number
+}
+
 export async function POST(req: NextRequest) {
-  const { test_run_id, model_config, use_case, frameworks } = await req.json() as {
+  const body = await req.json() as {
     test_run_id: string
     model_config: ModelConfig
     use_case: string
     frameworks: string[]
+    region?: string
+    quick_mode?: boolean
   }
+  const { test_run_id, model_config, use_case, frameworks, region, quick_mode } = body
 
   if (!test_run_id || !model_config || !use_case) {
     return new Response(JSON.stringify({ error: 'Missing required fields' }), {
@@ -45,9 +60,17 @@ export async function POST(req: NextRequest) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 
-  // Get framework-aware probes
-  const probes = getProbesForTest(frameworks ?? [], use_case)
+  // Get framework + region-aware probes
+  let probes = getProbesForTest(frameworks ?? [], use_case, region)
+  // Quick mode: cap to first 10 probes for fast live demo
+  if (quick_mode) probes = probes.slice(0, 10)
   const total = probes.length
+
+  // Judge budget — semantic layer. Quick mode disables entirely.
+  const semanticEnabled = !quick_mode
+  const judgeBudget = new JudgeBudget(
+    semanticEnabled ? Number(process.env.JUDGE_MAX_CALLS_PER_RUN ?? 250) : 0
+  )
 
   const encoder = new TextEncoder()
   const stream = new ReadableStream({
@@ -58,6 +81,7 @@ export async function POST(req: NextRequest) {
 
       const allResults: ProbeResult[] = []
       const responseMap = new Map<string, string>() // probeId -> response, for fairness pairs
+      const semanticTasks: Promise<void>[] = []  // in-flight judge calls
 
       for (let i = 0; i < probes.length; i++) {
         const probe = probes[i]
@@ -120,7 +144,49 @@ export async function POST(req: NextRequest) {
             score,
             severity,
             eval_metrics: evalMetrics,
+            probe_id: probe.id,
+            judge_budget: judgeBudget.snapshot(),
           })
+
+          // Semantic layer — kick off in parallel, non-blocking.
+          // When it resolves we emit a `probe_semantic` SSE event and update the DB row.
+          if (semanticEnabled && !judgeBudget.exhausted) {
+            const probeSnapshot = probe
+            const responseSnapshot = modelResponse
+            const indexSnapshot = i
+            const task = (async () => {
+              const semantic = await runSemanticJudges(probeSnapshot, responseSnapshot, judgeBudget)
+              // Merge into the in-memory probe result
+              const r = allResults.find(r => r.probeId === probeSnapshot.id)
+              if (r) r.evalMetrics.semantic = semantic
+
+              // Update DB row with semantic track
+              const updatedMetrics: EvalMetrics = {
+                ...evalMetrics,
+                semantic,
+              }
+              await supabase
+                .from('test_probes')
+                .update({ eval_metrics: updatedMetrics })
+                .eq('test_run_id', test_run_id)
+                .eq('probe_id', probeSnapshot.id)
+
+              send({
+                type: 'probe_semantic',
+                probe_id: probeSnapshot.id,
+                probe_number: indexSnapshot + 1,
+                semantic,
+                judge_budget: judgeBudget.snapshot(),
+              })
+            })().catch(err => {
+              send({
+                type: 'probe_semantic_error',
+                probe_id: probeSnapshot.id,
+                error: err instanceof Error ? err.message : 'semantic_failed',
+              })
+            })
+            semanticTasks.push(task)
+          }
         } catch (err) {
           send({
             type: 'error_probe',
@@ -141,6 +207,14 @@ export async function POST(req: NextRequest) {
             violation: err instanceof Error ? err.message : 'Probe execution failed',
           })
         }
+      }
+
+      // Wait for all pending semantic judge calls to finish before computing aggregates.
+      // Each task is defensive (catches its own errors), so this never rejects.
+      if (semanticTasks.length > 0) {
+        send({ type: 'semantic_waiting', pending: semanticTasks.length, judge_budget: judgeBudget.snapshot() })
+        await Promise.allSettled(semanticTasks)
+        send({ type: 'semantic_done', judge_budget: judgeBudget.snapshot() })
       }
 
       // Fairness pass: compare counterfactual pairs
@@ -218,17 +292,28 @@ export async function POST(req: NextRequest) {
       const complianceScore = Math.round(avgAccuracy * 100)
 
       // Compute eval_aggregate (average of each metric across all probes)
+      function avgOf(fn: (r: ProbeResult) => number | null | undefined): number | null {
+        const vals = validResults.map(fn).filter((v): v is number => typeof v === 'number')
+        return vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : null
+      }
+
       const evalAggregate = {
-        accuracy: validResults.length > 0 ? validResults.reduce((s, r) => s + r.evalMetrics.accuracy, 0) / validResults.length : 0,
-        calibration: validResults.length > 0 ? validResults.reduce((s, r) => s + r.evalMetrics.calibration, 0) / validResults.length : 0,
+        accuracy: avgOf(r => r.evalMetrics.accuracy) ?? 0,
+        calibration: avgOf(r => r.evalMetrics.calibration) ?? 0,
         robustness: null as number | null,
-        fairness: (() => {
-          const withFairness = validResults.filter(r => r.evalMetrics.fairness !== null)
-          return withFairness.length > 0 ? withFairness.reduce((s, r) => s + (r.evalMetrics.fairness ?? 0), 0) / withFairness.length : null
-        })(),
-        bias: validResults.length > 0 ? validResults.reduce((s, r) => s + r.evalMetrics.bias, 0) / validResults.length : 0,
-        toxicity: validResults.length > 0 ? validResults.reduce((s, r) => s + r.evalMetrics.toxicity, 0) / validResults.length : 0,
-        efficiency: validResults.length > 0 ? validResults.reduce((s, r) => s + r.evalMetrics.efficiency, 0) / validResults.length : 0,
+        fairness: avgOf(r => r.evalMetrics.fairness),
+        bias: avgOf(r => r.evalMetrics.bias) ?? 0,
+        toxicity: avgOf(r => r.evalMetrics.toxicity) ?? 0,
+        efficiency: avgOf(r => r.evalMetrics.efficiency) ?? 0,
+        semantic: {
+          bias_semantic: avgOf(r => r.evalMetrics.semantic?.bias_semantic ?? null),
+          toxicity_semantic: avgOf(r => r.evalMetrics.semantic?.toxicity_semantic ?? null),
+          hallucination: avgOf(r => r.evalMetrics.semantic?.hallucination ?? null),
+          pii_leakage: avgOf(r => r.evalMetrics.semantic?.pii_leakage ?? null),
+          judge_model: validResults.find(r => r.evalMetrics.semantic?.judge_model)?.evalMetrics.semantic?.judge_model ?? null,
+          judge_calls_used: judgeBudget.consumed,
+          judge_budget_max: judgeBudget.max,
+        } satisfies SemanticAggregate,
       }
 
       const { label: readinessTier } = computeReadinessTier(complianceScore)

@@ -16,6 +16,19 @@ export interface GroundTruth {
   pii_patterns?: string[]
 }
 
+/**
+ * Structured citation linking a probe to the specific regulation / section it tests.
+ * Optional — probes without citations are still valid.
+ * UI uses `enforcement` to show ADVISORY vs ENACTED chips distinctly.
+ */
+export interface RegulationCitation {
+  law: string                                           // e.g., "DPDP Act 2023"
+  section: string                                       // e.g., "§8(3)"
+  sector?: string                                       // e.g., "loan-underwriting"; undefined = all sectors
+  enforcement: 'enacted' | 'advisory' | 'guideline'
+  requirement_summary: string                           // one-line plain English
+}
+
 export interface ProbeDefinition {
   id: string
   dimension: string
@@ -25,6 +38,32 @@ export interface ProbeDefinition {
   tags: string[]
   scoring_type: ScoringType
   ground_truth: GroundTruth
+  regulation_citations?: RegulationCitation[]
+}
+
+export type ProgrammaticMetricKey =
+  | 'accuracy'
+  | 'calibration'
+  | 'robustness'
+  | 'fairness'
+  | 'bias'
+  | 'toxicity'
+  | 'efficiency'
+
+export type SemanticMetricKey =
+  | 'bias_semantic'
+  | 'toxicity_semantic'
+  | 'hallucination'
+  | 'pii_leakage'
+
+export interface SemanticMetrics {
+  bias_semantic: number | null       // 0-1 (1 = no bias). null = judge failed or skipped
+  toxicity_semantic: number | null   // 0-1 (1 = no toxicity)
+  hallucination: number | null       // 0-1 (1 = no hallucination)
+  pii_leakage: number | null         // 0-1 (1 = no leakage)
+  reasons: Partial<Record<SemanticMetricKey, string>>
+  errors: string[]                   // any per-metric failures
+  judge_model: string | null         // which model produced the scores
 }
 
 export interface EvalMetrics {
@@ -35,6 +74,9 @@ export interface EvalMetrics {
   bias: number            // 0-1
   toxicity: number        // 0-1
   efficiency: number      // 0-1
+  // NEW — additive, always optional so old rows keep working
+  reasons?: Partial<Record<ProgrammaticMetricKey, string>>
+  semantic?: SemanticMetrics | null
 }
 
 export interface ScoredProbe extends ProbeDefinition {

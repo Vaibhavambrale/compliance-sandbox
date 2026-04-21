@@ -49,6 +49,86 @@ Compliance Report Generated (Claude for narrative only)
 
 ---
 
+## 2b. Dual-Track Scoring Architecture (April 2026 — Tier 1 DeepEval Integration)
+
+As of 2026-04-21, ComplianceAI runs **two evaluation tracks in parallel** per probe:
+
+### Track A — Programmatic (Primary, Deterministic)
+- 7 rule-based metrics (accuracy, calibration, bias-lex, toxicity-lex, fairness, efficiency, robustness).
+- Pure TypeScript string/regex/list matching. **Zero variance on rerun.**
+- Drives the **readiness verdict** (the Deployment Ready / Conditionally Ready / etc. label).
+
+### Track B — Semantic (Additive, LLM-as-Judge)
+Ported verbatim from [DeepEval](https://github.com/confident-ai/deepeval):
+- **BiasMetric** — opinion extraction → bias classification (gender, race, politics, religion, caste, region).
+- **ToxicityMetric** — opinion extraction → toxicity classification (attacks, mockery, hate, threats).
+- **HallucinationMetric** — claim verification against ground-truth context.
+- **PIILeakageMetric** — regex pre-filter + LLM semantic PII detection.
+
+All four run via Claude Haiku with `temperature=0` (so same response + same context ⇒ same score). Prompt templates are 1:1 translations of DeepEval's Python templates so our methodology is directly comparable to the published reference.
+
+### Why two tracks?
+- **Programmatic weakness:** lexical methods miss implicit bias ("the businessman...his female assistant"), tonal toxicity, and non-keyword PII leakage.
+- **Semantic weakness:** LLM judges have measurement noise, can miss blatant keyword violations, and cost money.
+- **Together:** disagreements flag probes worth manual review (shown in the report's Semantic Verification card as "disagree" badges).
+
+### Budget & safety
+- Global budget: `JUDGE_MAX_CALLS_PER_RUN` (default 250, configurable via env).
+- Set to 0 → semantic layer disables entirely; programmatic still runs.
+- `?quick=1` on the live test page caps probes to 10 and disables semantic — used for live demos.
+- Judge failures degrade silently — each metric's score is null if judge errored, and that metric shows "—" in UI.
+
+---
+
+## 2c. India Compliance Coverage (April 2026 expansion)
+
+When the user selects **region = India** in the wizard, the platform automatically applies the full India regulatory stack regardless of use case. This makes the evaluation credible for any startup, SaaS vendor, or enterprise deploying AI in India.
+
+### Tier A — Enacted baseline (applied to every India run)
+These laws bind **every** AI operator serving Indian users:
+
+| Law | Framework ID | Probe count | What we test |
+|-----|--------------|-------------|--------------|
+| DPDP Act 2023 (+ Rules Jan 2026) | `india-dpdp-2023` | 10 | §5 notice, §6 consent, §8(3) purpose limitation, §9 children's data, §11 right to erasure, §16 cross-border transfer |
+| IT Act 2000 + IT Rules 2021 + SPDI Rules 2011 + BNS 2023 + CERT-In 2022 | `india-it-act` | 8 | §43A reasonable security, §66 computer offences, §79 safe-harbour, Rule 3(1)(b) unlawful content, CERT-In 6-hour reporting + 180-day log retention, BNS §111/§196 hate speech + national integration |
+| Consumer Protection Act 2019 | `india-cpa-2019` | 4 | §2(47) unfair trade practice, §2(28) misleading advertisement, §84 product liability |
+
+### Tier B — Advisory (labelled distinctly in UI)
+| Guidance | Framework ID | Enforcement |
+|----------|--------------|-------------|
+| MEITY AI Advisory March 2024 | `meity-ai-advisory` | Advisory — non-binding |
+
+### Tier C — Sector-specific (added automatically when use case matches)
+| Regulator | Framework ID | Trigger | Probe count |
+|-----------|--------------|---------|-------------|
+| RBI Digital Lending 2022 + FREE-AI 2025 | `india-rbi-lending` | finance / loan underwriting | 5 |
+| SEBI AI/ML Circular 2019 | `india-sebi-ai` | financial advisory | 3 |
+| IRDAI ICS Guidelines 2023 | `india-irdai-ics` | insurance | 3 |
+| ICMR AI Ethics 2023 | `india-icmr-ai` | healthcare | 3 |
+
+### Tier D — Sector acts (tagged on existing sector probes)
+| Act | Applies to |
+|-----|-----------|
+| Clinical Establishments Act 2010 | Healthcare probes |
+| NMC Act 2019 / Telemedicine Practice Guidelines 2020 | Healthcare probes |
+| Advocates Act 1961 + BCI Rules | Legal probes |
+| Indian Contract Act 1872 | Legal / contract probes |
+| Official Secrets Act 1923 | Autonomous / defence probes |
+
+### India Compliance Matrix (report UI)
+Each India evaluation produces a **regulation-by-regulation** section in the report:
+- Grouped by law, with the specific section cited (e.g., "DPDP §8(3)")
+- Shows the probe prompt, the model's actual response, and a PASS / PARTIAL / FAIL verdict
+- Each law is tagged with ENACTED (green), GUIDELINE (blue), or ADVISORY (amber)
+- A mandatory footer: *"Passing these probes is necessary but not sufficient evidence of legal compliance — consult qualified counsel for authoritative assessment."*
+
+### Honest caveats (for the paper / panel)
+- Advisory items (MEITY) do **not** gate the readiness verdict. They appear in the matrix but are clearly labelled non-binding.
+- Emerging items (Digital India Act draft, proposed AI Bill) are **not** cited as enforceable. The platform excludes them deliberately to avoid over-claiming.
+- Coverage is breadth-first for the April 25 deadline — ~50 India-specific probes across 10 frameworks. Deeper SEBI / IRDAI coverage is post-demo work.
+
+---
+
 ## 3. The 7 Evaluation Metrics
 
 ### Inspired by Stanford HELM (Holistic Evaluation of Language Models)
@@ -219,11 +299,12 @@ readinessScore = (complianceScore + capabilityScore) / 2
 
 | Strength | Why |
 |----------|-----|
-| **Deterministic** | Same response always produces the same score. No variability from LLM judge. |
-| **Reproducible** | Anyone can run the same probes and get identical results. |
-| **Fast** | Scoring is instant (no API calls for scoring). |
-| **Transparent** | Every score traces back to specific keyword matches — fully auditable. |
+| **Deterministic** | Programmatic track produces identical scores on rerun. Semantic track uses temp=0 for same-input→same-output. |
+| **Reproducible** | Anyone can run the same probes and get identical programmatic scores. |
+| **Transparent** | Every probe emits a `reasons` object — e.g., "3 refusal signals, 0 compliance signals" — visible via tooltip on every metric badge. |
+| **Dual-verified** | Programmatic lexical scores are cross-checked by LLM-judge semantic scores (DeepEval-ported). Disagreements are flagged in the report. |
 | **India-specific** | Probes test real DPDP Act requirements (Aadhaar, PAN, caste, Hindi). |
+| **Benchmark-grounded** | Layer 2 uses published MMLU (clinical, law, cybersec, econometrics) and TruthfulQA with literature baselines, alongside custom India-specific sets. |
 
 ### Known Limitations
 

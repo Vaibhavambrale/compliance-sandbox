@@ -1,0 +1,191 @@
+{
+  "name": "MMLU: Econometrics",
+  "source": "mmlu",
+  "dataset_id": "cais/mmlu",
+  "config": "econometrics",
+  "split": "test",
+  "published_baseline": 0.75,
+  "minimum_acceptable": 0.55,
+  "questions": [
+    {
+      "id": "mmlu-econ-1",
+      "question": "Which one of the following is the most appropriate definition of a 99% confidence interval?\nA) 99% of the time in repeated samples, the interval would contain the true value of the parameter\nB) 99% of the time in repeated samples, the interval would contain the estimated value of the parameter\nC) 99% of the time in repeated samples, the null hypothesis will be rejected\nD) 99% of the time in repeated samples, the null hypothesis will not be rejected when it was false",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "A",
+      "explanation": "Subject: econometrics. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-econ-2",
+      "question": "What is the main difference between the Dickey Fuller (DF) and Phillips-Perron (PP) approaches to unit root testing?\nA) ADF is a single equation approach to unit root testing while PP is a systems approach\nB) PP tests reverse the DF null and alternative hypotheses so that there is stationarity under the null hypothesis of the PP test\nC) The PP test incorporates an automatic correction for autocorrelated residuals in the test regression\nD) PP tests have good power in small samples whereas DF tests do not.",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "C",
+      "explanation": "Subject: econometrics. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-econ-3",
+      "question": "If there were a leverage effect in practice, what would be the shape of the news impact curve for as model that accounted for that leverage?\nA) It would rise more quickly for negative disturbances than for positive ones of the same magnitude\nB) It would be symmetrical about zero\nC) It would rise less quickly for negative disturbances than for positive ones of the same magnitude\nD) It would be zero for all positive disturbances",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "A",
+      "explanation": "Subject: econometrics. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-econ-4",
+      "question": "Which of the following statements is false concerning the linear probability model?\nA) There is nothing in the model to ensure that the estimated probabilities lie between zero and one\nB) Even if the probabilities are truncated at zero and one, there will probably be many observations for which the probability is either exactly zero or exactly one\nC) The error terms will be heteroscedastic and not normally distributed\nD) The model is much harder to estimate than a standard regression model with a continuous dependent variable",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "D",
+      "explanation": "Subject: econometrics. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-econ-5",
+      "question": "Which of the following statements concerning the regression population and sample is FALSE?\nA) The population is the total collection of all items of interest\nB) The population can be infinite\nC) In theory, the sample could be larger than the population\nD) A random sample is one where each individual item from the population is equally likely to be drawn.",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "C",
+      "explanation": "Subject: econometrics. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-econ-6",
+      "question": "Which of the following statements is INCORRECT concerning a comparison of the Box-Pierce Q and the Ljung-Box Q* statistics for linear dependence in time series?\nA) Asymptotically, the values of the two test statistics will be equal\nB) The Q test has better small-sample properties than the Q*\nC) The Q test is sometimes over-sized for small samples\nD) As the sample size tends towards infinity, both tests will show a tendency to always reject the null hypothesis of zero autocorrelation coefficients.",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "B",
+      "explanation": "Subject: econometrics. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-econ-7",
+      "question": "A parsimonious model is one that\nA) Includes too many variables\nB) Includes as few variables as possible to explain the data\nC) Is a well-specified model\nD) Is a mis-specified model",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "A",
+      "explanation": "Subject: econometrics. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-econ-8",
+      "question": "Which of the following is NOT a feature of continuously compounded returns (i.e. log-returns)?\nA) They can be interpreted as continuously compounded changes in the prices\nB) They can be added over time to give returns for longer time periods\nC) They can be added across a portfolio of assets to give portfolio returns\nD) They are usually fat-tailed",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "C",
+      "explanation": "Subject: econometrics. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-econ-9",
+      "question": "Which of the following features of financial asset return time-series could be captured using a standard GARCH(1,1) model?\n\ni) Fat tails in the return distribution\n\n\nii) Leverage effects\n\n\niii) Volatility clustering\n\n\niv) Volatility affecting returns\nA) (ii) and (iv) only\nB) (i) and (iii) only\nC) (i), (ii), and (iii) only\nD) (i), (ii), (iii), and (iv)",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "B",
+      "explanation": "Subject: econometrics. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-econ-10",
+      "question": "Consider the estimation of a GARCH-M model. If the data employed were a time-series of daily corporate bond percentage returns, which of the following would you expect the value of the GARCH-in-mean parameter estimate to be?\nA) Less than -1\nB) Between -1 and 0\nC) Between 0 and 1\nD) Bigger than 1",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "C",
+      "explanation": "Subject: econometrics. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-econ-11",
+      "question": "Under which of the following situations would bootstrapping be preferred to pure simulation?\n\ni) If it is desired that the distributional properties of the data in the experiment\n\nare the same as those of some actual data\n\n\nii) If it is desired that the distributional properties of the data in the experiment\n\nare known exactly\n\n\niii) If the distributional properties of the actual data are unknown\n\n\niv) If the sample of actual data available is very small\nA) (ii) and (iv) only\nB) (i) and (iii) only\nC) (i), (ii), and (iv) only\nD) (i), (ii), (iii), and (iv)",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "B",
+      "explanation": "Subject: econometrics. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-econ-12",
+      "question": "Which of the following may be consequences of one or more of the CLRM assumptions being violated?\n\ni) The coefficient estimates are not optimal\n\n\nii) The standard error estimates are not optimal\n\n\niii) The distributions assumed for the test statistics are inappropriate\n\n\niv) Conclusions regarding the strength of relationships between the dependent\n\nand independent variables may be invalid.\nA) (ii) and (iv) only\nB) (i) and (iii) only\nC) (i), (ii), and (iii) only\nD) (i), (ii), (iii), and (iv)",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "D",
+      "explanation": "Subject: econometrics. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-econ-13",
+      "question": "Which of the following statements is true concerning forecasting in econometrics?\nA) Forecasts can only be made for time-series data\nB) Mis-specified models are certain to produce inaccurate forecasts\nC) Structural forecasts are simpler to produce than those from time series models\nD) In-sample forecasting ability is a poor test of model adequacy",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "D",
+      "explanation": "Subject: econometrics. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-econ-14",
+      "question": "The pacf is necessary for distinguishing between\nA) An AR and an MA model\nB) An AR and an ARMA model\nC) An MA and an ARMA model\nD) Different models from within the ARMA family",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "B",
+      "explanation": "Subject: econometrics. MMLU benchmark."
+    },
+    {
+      "id": "mmlu-econ-15",
+      "question": "Negative residual autocorrelation is indicated by which one of the following?\nA) A cyclical pattern in the residuals\nB) An alternating pattern in the residuals\nC) A complete randomness in the residuals\nD) Residuals that are all close to zero",
+      "choices": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "correct_answer": "B",
+      "explanation": "Subject: econometrics. MMLU benchmark."
+    }
+  ]
+}

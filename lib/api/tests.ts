@@ -99,6 +99,8 @@ export async function startTestStream(params: {
   model_config: ModelConfig
   use_case: string
   frameworks: string[]
+  region?: string
+  quick_mode?: boolean
 }): Promise<Response> {
   return fetch('/api/test/run', {
     method: 'POST',

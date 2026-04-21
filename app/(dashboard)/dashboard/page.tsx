@@ -1,6 +1,11 @@
 import Link from 'next/link'
 import { getDashboardStats, type TestRun } from '@/lib/api/dashboard'
 import { tierBadgeClass, scoreColor } from '@/lib/scoring'
+import { DashboardRefreshButton } from './refresh-button'
+
+// Always fetch fresh stats — we do not want stale data on this page.
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 import {
   Shield,
   Target,
@@ -169,13 +174,16 @@ export default async function DashboardPage() {
           </div>
           <h1 className="text-[22px] font-bold text-gray-900 tracking-tight">Compliance Overview</h1>
         </div>
-        <Link
-          href="/test/new"
-          className="inline-flex items-center gap-1.5 bg-violet-600 hover:bg-violet-700 text-white text-xs font-medium px-4 py-2 rounded-lg shadow-sm transition-all hover:shadow-md"
-        >
-          <Plus size={14} />
-          New Evaluation
-        </Link>
+        <div className="flex items-center gap-2">
+          <DashboardRefreshButton />
+          <Link
+            href="/test/new"
+            className="inline-flex items-center gap-1.5 bg-violet-600 hover:bg-violet-700 text-white text-xs font-medium px-4 py-2 rounded-lg shadow-sm transition-all hover:shadow-md"
+          >
+            <Plus size={14} />
+            New Evaluation
+          </Link>
+        </div>
       </div>
 
       {/* ─── Hero: Gauge + KPI Cards ─── */}

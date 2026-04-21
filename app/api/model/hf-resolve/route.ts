@@ -39,17 +39,17 @@ export async function POST(req: NextRequest) {
 
     // Find the first live provider
     const liveProviders = Object.entries(providers)
-      .filter(([, v]) => v.status === 'live')
+      .filter(([, v]) => v.status === 'live' && v.task === 'conversational')
       .map(([name, v]) => ({
         provider: name,
         providerId: v.providerId,
         task: v.task,
-        endpoint: `https://router.huggingface.co/${name}/v1/chat/completions`,
+        endpoint: `https://router.huggingface.co/v1/chat/completions`,
       }))
 
     if (liveProviders.length === 0) {
       return NextResponse.json({
-        error: `Model "${modelId}" has no free inference providers available. Try a different model.`,
+        error: `Model "${modelId}" has no chat-capable inference providers. This may be a base model — try the "-Instruct" variant.`,
         modelName: data.id,
       }, { status: 404 })
     }
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
       modelId: data.id,
       modelName: data.id.split('/').pop() ?? data.id,
       provider: best.provider,
-      providerId: best.providerId,
+      providerId: `${data.id}:${best.provider}`,
       endpoint: best.endpoint,
       task: best.task,
       allProviders: sorted.map(p => p.provider),

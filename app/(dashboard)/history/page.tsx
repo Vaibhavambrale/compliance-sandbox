@@ -12,6 +12,11 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import HistoryFilters from './filters'
+import { DeleteRunButton } from './delete-run-button'
+
+// Live data — no caching.
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 function scoreColor(score: number | null) {
   if (score === null) return 'bg-gray-50 text-gray-600'
@@ -153,15 +158,22 @@ export default async function HistoryPage({
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    {run.status === 'complete' ? (
-                      <Button variant="outline" size="sm" asChild>
-                        <Link href={`/report/${run.id}`}>View Report</Link>
-                      </Button>
-                    ) : (
-                      <Button variant="outline" size="sm" asChild>
-                        <Link href={`/test/${run.id}`}>View</Link>
-                      </Button>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {run.status === 'complete' ? (
+                        <Button variant="outline" size="sm" asChild>
+                          <Link href={`/report/${run.id}`}>View Report</Link>
+                        </Button>
+                      ) : (
+                        <Button variant="outline" size="sm" asChild>
+                          <Link href={`/test/${run.id}`}>View</Link>
+                        </Button>
+                      )}
+                      <DeleteRunButton
+                        runId={run.id}
+                        modelName={run.model_name}
+                        isRunning={run.status === 'running'}
+                      />
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
