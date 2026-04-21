@@ -272,6 +272,7 @@ See `SCHEMA.md` for the authoritative, verified schema including all JSONB colum
 8. Always run npm run build and confirm 0 errors before git push
 9. Always ask user for confirmation before starting a new phase
 10. .env.local is in .gitignore — never commit it
+11. **Never hardcode real API keys, tokens, or secrets in ANY tracked file — including tests.** Tests that need a string matching a key regex must use an obviously-fake placeholder containing the word `FAKE`, `TEST`, `PLACEHOLDER`, `EXAMPLE`, or `DUMMY` (e.g., `hf_FAKETOKENFORREGEXTEST0000000000000`). If a test actually needs a working token, read it from `process.env.<NAME>_TEST_TOKEN` sourced from `.env.local`. A pre-commit hook at `.git/hooks/pre-commit` enforces this — install via `bash scripts/install-git-hooks.sh` after cloning.
 
 ---
 

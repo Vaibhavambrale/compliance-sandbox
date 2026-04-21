@@ -1,0 +1,55 @@
+#!/bin/sh
+# Block commits that contain strings resembling real API keys.
+# Known patterns:
+#   OpenAI:     sk-proj-<20+ alphanumeric>
+#   Anthropic:  sk-ant-<20+ alphanumeric>
+#   Groq:       gsk_<20+ alphanumeric>
+#   Google:     AIza<35 alphanumeric>
+#   HuggingFace: hf_<30+ alphanumeric>
+#
+# A match is allowed only if the string also contains "FAKE", "TEST",
+# "PLACEHOLDER", "EXAMPLE", or 8+ consecutive zeros — i.e. it's obviously a
+# synthetic test fixture, not a real credential.
+#
+# Install once per clone:  (this file is already executable via `chmod +x`)
+# To bypass in an emergency: `git commit --no-verify`
+
+# Grab the staged diff (added lines only).
+ADDED=$(git diff --cached -U0 | grep -E '^\+' | grep -v '^+++')
+
+PATTERN='(sk-proj-[A-Za-z0-9]{20,}|sk-ant-[A-Za-z0-9]{20,}|gsk_[A-Za-z0-9]{20,}|AIza[A-Za-z0-9]{35}|hf_[A-Za-z0-9]{30,})'
+MATCHES=$(printf '%s\n' "$ADDED" | grep -oE "$PATTERN" || true)
+
+if [ -z "$MATCHES" ]; then
+  exit 0
+fi
+
+# Filter: if every match is obviously a placeholder, let the commit through.
+REAL_LOOKING=""
+for M in $MATCHES; do
+  case "$M" in
+    *FAKE*|*TEST*|*PLACEHOLDER*|*EXAMPLE*|*DUMMY*|*00000000*) continue ;;
+    *) REAL_LOOKING="$REAL_LOOKING $M" ;;
+  esac
+done
+
+if [ -z "$REAL_LOOKING" ]; then
+  exit 0
+fi
+
+echo ""
+echo "✗ Pre-commit hook: real-looking API key(s) detected in staged diff:"
+echo ""
+for M in $REAL_LOOKING; do
+  # Mask middle so we don't print the full secret into the terminal log.
+  printf "    %s...%s\n" "$(echo "$M" | cut -c1-8)" "$(echo "$M" | tail -c 5)"
+done
+echo ""
+echo "If this is a legitimate test fixture, include one of these words:"
+echo "    FAKE, TEST, PLACEHOLDER, EXAMPLE, DUMMY"
+echo "or use 8+ consecutive zeros in the value."
+echo ""
+echo "If it's a real key, DO NOT commit it. Put it in .env.local instead."
+echo "Emergency bypass: git commit --no-verify  (use only if you're sure)."
+echo ""
+exit 1
