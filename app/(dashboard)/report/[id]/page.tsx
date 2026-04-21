@@ -400,10 +400,19 @@ export default async function ReportPage({ params }: { params: { id: string } })
         </Card>
       )}
 
-      <Separator />
-
-      {/* India Compliance Matrix — regulation-by-regulation pass/fail (India runs only) */}
-      <IndiaComplianceMatrix probes={probes} citationsByProbeId={getCitationsByProbeId()} />
+      {/* India Compliance Matrix — regulation-by-regulation pass/fail (India runs only).
+          Only render section (+ separators) when at least one probe has citations. */}
+      {(() => {
+        const citations = getCitationsByProbeId()
+        const hasIndiaCitations = probes.some(p => p.probe_id && citations[p.probe_id]?.length)
+        if (!hasIndiaCitations) return null
+        return (
+          <>
+            <Separator />
+            <IndiaComplianceMatrix probes={probes} citationsByProbeId={citations} />
+          </>
+        )
+      })()}
 
       <Separator />
 

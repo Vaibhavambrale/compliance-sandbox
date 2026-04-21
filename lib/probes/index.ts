@@ -21,10 +21,15 @@ export type { ProbeDefinition, ScoredProbe, RegulationCitation } from './types'
 export { detectScenarios, getScenarioDetails, getAllScenarios } from './scenario-mapper'
 
 /**
- * Flat lookup: probeId → regulation_citations. Built once at module load.
- * Used by the India Compliance Matrix on the report page.
+ * Flat lookup: probeId → regulation_citations. Built once and cached for the
+ * process lifetime — probe definitions are code-defined and never change at
+ * runtime. Called from the report page on every render, so memoisation matters.
  */
+let _citationsCache: Record<string, import('./types').RegulationCitation[]> | null = null
+
 export function getCitationsByProbeId(): Record<string, import('./types').RegulationCitation[]> {
+  if (_citationsCache) return _citationsCache
+
   const all = [
     ...UNIVERSAL_PROBES,
     ...DPDP_PROBES,
@@ -49,6 +54,7 @@ export function getCitationsByProbeId(): Record<string, import('./types').Regula
       out[p.id] = p.regulation_citations
     }
   }
+  _citationsCache = out
   return out
 }
 
@@ -113,7 +119,7 @@ const SCENARIO_PROBES: Record<string, ProbeDefinition[]> = {
  * - Universal probes always included.
  * - User-selected frameworks add their probes.
  * - Scenario detection adds sector probes.
- * - If `region === 'India'`: India baseline frameworks (DPDP, IT Act, CPA,
+ * - If region (case-insensitive) is "india": India baseline frameworks (DPDP, IT Act, CPA,
  *   MEITY) are added automatically, and India sector frameworks are added
  *   based on detected scenario (e.g., healthcare → ICMR).
  */
@@ -170,7 +176,11 @@ export function resolveFrameworks(
 ): string[] {
   const out = new Set<string>(frameworks)
 
-  if (region === 'India') {
+  // Normalise — region IDs are lowercase (`'india'`) in REGIONS but earlier code
+  // and external callers may pass either case. Accept both.
+  const normalizedRegion = region?.trim().toLowerCase()
+
+  if (normalizedRegion === 'india') {
     for (const f of INDIA_BASELINE_FRAMEWORKS) out.add(f)
 
     const scenarios = detectScenarios(useCaseDescription)

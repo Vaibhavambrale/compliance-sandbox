@@ -831,31 +831,71 @@ function NewTestPageInner() {
             </CardContent>
           </Card>
 
-          {/* Frameworks — only show region-specific ones */}
+          {/* Frameworks — grouped by enforcement tier for the selected region */}
           <Card className="border-gray-200">
             <CardHeader>
               <CardTitle className="text-base">Applicable Compliance Frameworks</CardTitle>
               <CardDescription>
                 These frameworks apply to your selected region ({REGIONS.find(r => r.id === selectedRegion)?.name ?? 'Global'}).
-                All are pre-selected for comprehensive evaluation.
+                {selectedRegion === 'india'
+                  ? ' Baseline regulations apply to every India run; sector-specific regulators bind only when the scenario matches.'
+                  : ' All are pre-selected for comprehensive evaluation.'}
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3">
-              {getFrameworksForRegion(selectedRegion ?? 'global').map(fw => (
-                <label key={fw.id} className="flex items-center gap-3 cursor-pointer">
-                  <Checkbox checked={selectedFrameworks.includes(fw.id)} onCheckedChange={() => toggleFramework(fw.id)} />
-                  <div className="flex-1">
-                    <span className="text-sm font-medium text-gray-900">{fw.name}</span>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <Badge variant="secondary" className="text-[10px]">{fw.region}</Badge>
-                      <Badge variant={fw.status === 'established' ? 'default' : 'secondary'} className="text-[10px]">{fw.status}</Badge>
+            <CardContent className="space-y-4">
+              {(() => {
+                const all = getFrameworksForRegion(selectedRegion ?? 'global')
+                // India baseline — every India AI operator must satisfy these
+                const INDIA_BASELINE = new Set(['india-dpdp-2023', 'india-it-act', 'india-cpa-2019'])
+                // India sector — only relevant when deployment is in that sector
+                const INDIA_SECTOR = new Set(['india-rbi-lending', 'india-sebi-ai', 'india-irdai-ics', 'india-icmr-ai'])
+                const baseline = all.filter(fw => INDIA_BASELINE.has(fw.id))
+                const advisory = all.filter(fw => fw.status === 'advisory')
+                const sector = all.filter(fw => INDIA_SECTOR.has(fw.id))
+                const other = all.filter(fw =>
+                  !INDIA_BASELINE.has(fw.id) && !INDIA_SECTOR.has(fw.id) && fw.status !== 'advisory'
+                )
+
+                const renderGroup = (title: string, hint: string, list: typeof all) =>
+                  list.length === 0 ? null : (
+                    <div key={title}>
+                      <div className="flex items-center gap-2 mb-2">
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">{title}</p>
+                        <span className="text-[10px] text-gray-400">{hint}</span>
+                      </div>
+                      <div className="space-y-2 pl-1">
+                        {list.map(fw => (
+                          <label key={fw.id} className="flex items-center gap-3 cursor-pointer">
+                            <Checkbox checked={selectedFrameworks.includes(fw.id)} onCheckedChange={() => toggleFramework(fw.id)} />
+                            <div className="flex-1">
+                              <span className="text-sm font-medium text-gray-900">{fw.name}</span>
+                              <div className="flex items-center gap-2 mt-0.5">
+                                <Badge variant="secondary" className="text-[10px]">{fw.region}</Badge>
+                                <Badge variant={fw.status === 'established' ? 'default' : 'secondary'} className="text-[10px]">{fw.status}</Badge>
+                              </div>
+                              <p className="text-[11px] text-gray-400 mt-1">
+                                {fw.requirements?.length ?? 0} testable requirements &middot; Pass threshold: {fw.passThreshold}%
+                              </p>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
                     </div>
-                    <p className="text-[11px] text-gray-400 mt-1">
-                      {fw.requirements?.length ?? 0} testable requirements &middot; Pass threshold: {fw.passThreshold}%
-                    </p>
-                  </div>
-                </label>
-              ))}
+                  )
+
+                // India gets the full grouped layout; other regions keep the simple flat list.
+                if (selectedRegion === 'india') {
+                  return (
+                    <>
+                      {renderGroup('Baseline (applies to every India AI)', 'enforceable — DPDP + IT Act + CPA', baseline)}
+                      {renderGroup('Advisory', 'non-binding best practice', advisory)}
+                      {renderGroup('Sector regulators', 'binding only in that sector', sector)}
+                      {renderGroup('Other', '', other)}
+                    </>
+                  )
+                }
+                return renderGroup('Selected region', '', all)
+              })()}
             </CardContent>
           </Card>
 

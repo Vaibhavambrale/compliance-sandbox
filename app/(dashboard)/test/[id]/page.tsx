@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -165,6 +165,14 @@ function complianceColor(score: number) {
 }
 
 export default function TestDetailPage({ params }: { params: { id: string } }) {
+  return (
+    <Suspense fallback={<div className="space-y-4"><div className="h-8 w-48 bg-muted animate-pulse rounded" /></div>}>
+      <TestDetailPageInner params={params} />
+    </Suspense>
+  )
+}
+
+function TestDetailPageInner({ params }: { params: { id: string } }) {
   const searchParams = useSearchParams()
   const quickMode = searchParams?.get('quick') === '1'
   const [testRun, setTestRun] = useState<TestRun | null>(null)
